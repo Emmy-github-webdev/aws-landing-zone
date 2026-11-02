@@ -958,3 +958,369 @@ The secondary Region will only be included in the implementation where justified
 | Security monitoring | GuardDuty and Security Hub |
 | Audit logging | CloudTrail and AWS Config |
 | Backup | AWS Backup |
+
+## 5. Architecture Decisions
+
+### 5.1 Purpose
+
+This section records the major technical decisions guiding the design and implementation of the AWS Banking Landing Zone.
+
+The decisions establish a consistent architecture across AWS Organizations, networking, security, infrastructure automation and workload deployment.
+
+Each decision documents:
+- The selected technology or architectural approach.
+- The reason for selecting it.
+- Alternatives considered.
+- The implications for implementation.
+
+### 5.2 ADR-001: AWS Multi-Account Architecture
+
+**Decision:** Use AWS Organizations with a multi-account structure.
+
+**Rationale:**
+- Separate security, infrastructure and workload responsibilities.
+- Reduce the impact of security incidents.
+- Establish independent account-level security boundaries.
+- Support centralized billing and governance.
+- Enable environment isolation.
+
+**Alternatives considered:**
+- Single AWS account.
+- Multiple accounts without centralized organization management.
+
+**Consequences:**
+- AWS Organizations will manage the accounts.
+- Organizational Units will group accounts by responsibility.
+- SCPs will establish organization-level permission guardrails.
+- Terraform will manage the custom organization configuration.
+
+### 5.3 ADR-002: AWS Control Tower for Landing Zone Governance
+
+**Decision:** Use AWS Control Tower as the landing-zone governance foundation.
+
+**Rationale:**
+- Establish a standardized multi-account landing zone.
+- Provide centralized governance capabilities.
+- Support account provisioning through Account Factory.
+- Enable integration with AWS Organizations and IAM Identity Center.
+- Reduce the amount of custom governance infrastructure required.
+
+**Alternatives considered:**
+- Building the entire landing zone manually using AWS Organizations.
+- Using a fully custom Terraform-based organization framework.
+
+**Consequences:**
+- Control Tower will establish the foundational governance environment.
+- Custom Terraform configurations will extend the landing zone.
+- Control Tower-managed resources must not be independently managed by Terraform in conflicting ways.
+- Account provisioning and governance changes must respect Control Tower's management boundaries.
+
+AWS Account Factory for Terraform (AFT) may be introduced later if automated account vending becomes necessary. It is not a prerequisite for the initial portfolio implementation.
+
+### 5.4 ADR-003: Centralized Security and Logging Accounts
+
+**Decision:** Use separate Security and Log Archive accounts.
+
+**Rationale:**
+- Isolate security administration from application workloads.
+- Centralize security findings.
+- Protect audit records.
+- Improve investigation and audit capabilities.
+- Reduce the risk of workload administrators modifying centralized audit data.
+
+**Alternatives considered:**
+- Storing all security and audit information in the Management Account.
+- Maintaining separate security and logging services in every workload account.
+
+**Consequences:**
+- The Security Account will provide centralized security administration.
+- The Log Archive Account will store organization-wide audit logs.
+- CloudTrail and AWS Config will provide centralized visibility.
+- Cross-account permissions will control access to security and logging resources.
+
+### 5.5 ADR-004: Hub-and-Spoke Network Architecture
+
+**Decision:** Use AWS Transit Gateway with a centralized network hub.
+
+**Rationale:**
+- Simplify connectivity between multiple AWS accounts.
+- Centralize network administration.
+- Support workload network segmentation.
+- Provide a foundation for centralized inspection.
+- Support future hybrid connectivity.
+
+**Alternatives considered:**
+- Independent VPCs without centralized connectivity.
+- VPC peering between individual workload accounts.
+
+**Consequences:**
+- The Network Account will host the Transit Gateway.
+- Workload VPCs will connect through cross-account Transit Gateway attachments.
+- Separate Transit Gateway route tables will enforce network segmentation.
+- Network Firewall will inspect selected traffic flows.
+- Routing and firewall rules must be carefully designed to prevent unintended access and inspection bypass.
+
+### 5.6 ADR-005: Private Workload Networking
+
+**Decision:** Deploy banking application workloads primarily in private subnets.
+
+**Rationale:**
+- Minimize direct internet exposure.
+- Reduce attack surface.
+- Restrict access to sensitive workloads.
+- Support controlled outbound connectivity.
+
+**Alternatives considered:**
+- Deploying application workloads directly into public subnets.
+- Using independent internet gateways and NAT infrastructure for every workload without centralized egress controls.
+
+**Consequences:**
+- Private subnets will host application and database workloads.
+- Public subnets will only be used where explicitly required.
+- Controlled egress will use approved network paths.
+- VPC endpoints will provide private access to supported AWS services.
+
+### 5.7 ADR-006: Centralized Identity Management
+
+**Decision:** Use AWS IAM Identity Center with federated workforce authentication.
+
+**Rationale:**
+- Centralize workforce access across AWS accounts.
+- Support MFA and permission sets.
+- Reduce the need for individual IAM users.
+- Improve access administration and auditing.
+- Enable temporary role-based credentials.
+
+**Alternatives considered:**
+- Individual IAM users in every AWS account.
+- Independently managed access credentials in each account.
+
+**Consequences:**
+- IAM Identity Center will manage workforce access.
+- Permission sets will define account access.
+- Privileged access will be restricted.
+- Break-glass access will be controlled and monitored.
+
+### 5.8 ADR-007: Terraform for Infrastructure as Code
+
+**Decision:** Use Terraform as the primary infrastructure provisioning tool.
+
+**Rationale:**
+- Support reusable infrastructure modules.
+- Maintain infrastructure definitions in version control.
+- Enable repeatable deployments.
+- Support multiple AWS accounts and environments.
+- Integrate directly with GitHub Actions.
+- Provide infrastructure change plans before deployment.
+
+**Alternatives considered:**
+- AWS CloudFormation.
+- AWS CDK.
+- Manual infrastructure provisioning through the AWS Console.
+
+**Consequences:**
+- Infrastructure will be organized into reusable Terraform modules.
+- Environment-specific configurations will be maintained separately.
+- Terraform formatting, validation and planning will be automated.
+- Remote state will be used.
+- Infrastructure changes will be reviewed through GitHub pull requests.
+
+### 5.9 ADR-008: GitHub Actions for CI/CD
+
+**Decision:** Use GitHub Actions as the CI/CD automation platform.
+
+**Rationale:**
+- Integrate infrastructure automation with the GitHub repository.
+- Automate Terraform validation and deployment.
+- Support pull-request-based infrastructure reviews.
+- Provide environment-specific deployment workflows.
+- Integrate approval controls for production deployments.
+
+**Alternatives considered:**
+- AWS CodePipeline and AWS CodeBuild.
+- Jenkins.
+- GitLab CI/CD.
+
+**Consequences:**
+- GitHub Actions will execute Terraform workflows.
+- Separate workflows will support validation, planning and deployment.
+- GitHub Environments will provide deployment protection and approvals.
+- Production deployments will require additional authorization.
+- AWS CodePipeline and AWS CodeBuild will not be used.
+
+### 5.10 ADR-009: GitHub OIDC for AWS Authentication
+
+**Decision:** Use GitHub OpenID Connect (OIDC) federation to authenticate GitHub Actions with AWS.
+
+**Rationale:**
+- Eliminate long-lived AWS access keys in GitHub.
+- Use temporary AWS credentials.
+- Restrict deployment access through IAM trust policies.
+- Support separate permissions for different environments.
+- Improve CI/CD security.
+
+**Alternatives considered:**
+- Storing AWS access keys in GitHub Secrets.
+- Using a self-hosted deployment runner with separately managed credentials.
+
+**Consequences:**
+- AWS IAM will establish an OIDC identity provider for GitHub Actions.
+- IAM trust policies will restrict access to the intended repository and deployment context.
+- Separate IAM roles will be created for development and production deployments.
+- Terraform plan and apply permissions will be separated where practical.
+- Production deployment will require GitHub Environment approval.
+
+### 5.11 ADR-010: Amazon S3 for Terraform Remote State
+
+**Decision:** Use Amazon S3 as the Terraform remote state backend with native S3 state locking.
+
+**Rationale:**
+- Store state centrally.
+- Support infrastructure deployment across environments.
+- Provide durable and controlled state storage.
+- Enable collaboration between authorized deployment processes.
+- Support encryption and access restrictions.
+
+**Alternatives considered:**
+- Local Terraform state files.
+- Terraform Cloud remote state.
+- Other supported remote backend solutions.
+
+**Consequences:**
+- Terraform state will be stored in encrypted S3 buckets.
+- State access will be restricted to authorized deployment roles.
+- Native S3 lockfile support will prevent concurrent state operations.
+- State recovery and versioning will be considered.
+- State files and sensitive outputs must not be exposed in public repositories or workflow logs.
+
+### 5.12 ADR-011: AWS KMS for Encryption
+
+**Decision:** Use AWS KMS customer-managed keys where additional control over encryption keys is required.
+
+**Rationale:**
+- Control encryption key policies.
+- Separate key administration from resource administration.
+- Support encryption of sensitive infrastructure data.
+- Improve auditability of key usage.
+- Support applicable data protection requirements.
+
+**Alternatives considered:**
+- AWS-managed encryption keys.
+- Application-managed encryption.
+
+**Consequences:**
+- KMS keys will be provisioned for selected services.
+- Key policies will restrict administration and usage.
+- Key rotation and deletion protections will be configured appropriately.
+- Key deployment and cross-account usage will be planned carefully.
+
+### 5.13 ADR-012: Centralized Security Monitoring
+
+**Decision:** Use AWS-native security services with centralized administration.
+
+**Selected services:**
+- Amazon GuardDuty.
+- AWS Security Hub.
+- AWS Config.
+- AWS CloudTrail.
+- Amazon Inspector.
+- Amazon Macie where appropriate.
+
+**Rationale:**
+- Provide visibility across AWS accounts.
+- Detect suspicious activity.
+- Monitor resource configuration.
+- Identify security vulnerabilities.
+- Support security investigations.
+
+**Alternatives considered:**
+- Individual security monitoring in every account.
+- External security monitoring platforms as the primary security layer.
+
+**Consequences:**
+- Security services will be enabled according to workload requirements.
+- Centralized administration will be configured in the Security Account.
+- Findings will be aggregated centrally.
+- Audit records will be delivered to the Log Archive Account.
+
+### 5.14 ADR-013: AWS Backup for Data Protection
+
+**Decision:** Use AWS Backup as the primary backup-management service for supported AWS resources.
+
+**Rationale:**
+- Centralize backup policies.
+- Support cross-account backup copies.
+- Enable recovery across accounts.
+- Improve backup administration and visibility.
+- Support workload recovery requirements.
+
+**Alternatives considered:**
+- Resource-specific backup scripts.
+- Independently managed backup policies in each workload account.
+
+**Consequences:**
+- Backup policies will be defined according to workload criticality.
+- Cross-account backup will be implemented where appropriate.
+- Cross-Region copies will be considered for critical workloads.
+- Restore procedures will be tested.
+
+### 5.15 ADR-014: EU Regional Strategy
+
+**Decision:** Use an EU AWS Region as the primary deployment Region, with a secondary EU Region considered for disaster recovery.
+
+**Rationale:**
+- Align the architecture with the institution's European operating context.
+- Support regional resilience planning.
+- Consider data protection and transfer requirements.
+- Provide flexibility for recovery architecture.
+
+**Alternatives considered:**
+- Single-region deployment without a recovery strategy.
+- Multi-region deployment for all workloads from the beginning.
+
+**Consequences:**
+- The primary Region will be confirmed before deployment.
+- A secondary Region will only be introduced where justified.
+- Regional service availability and recovery costs will be assessed.
+- Data residency and transfer obligations will be evaluated according to the relevant data and service.
+
+### 5.16 ADR-015: Environment Isolation
+
+**Decision:** Separate production and non-production workloads into different AWS accounts.
+
+**Rationale:**
+- Reduce the impact of development mistakes.
+- Protect production resources.
+- Apply environment-specific access controls.
+- Support independent infrastructure deployment.
+- Improve cost allocation and operational management.
+
+**Alternatives considered:**
+- Hosting development and production workloads in one AWS account.
+- Using only VPC separation within a shared account.
+
+**Consequences:**
+- Production and development will have separate AWS accounts.
+- Terraform configurations will use environment-specific settings.
+- Deployment roles will be separated.
+- Production changes will require stronger approval controls.
+
+### 5.17 Summary of Architecture Decisions
+
+| ADR | Decision | Selected technology / approach |
+|---|---|---|
+| ADR-001 | Account architecture | AWS Organizations |
+| ADR-002 | Landing-zone governance | AWS Control Tower |
+| ADR-003 | Security and logging | Dedicated accounts |
+| ADR-004 | Network connectivity | Transit Gateway hub-and-spoke |
+| ADR-005 | Workload networking | Private subnets |
+| ADR-006 | Workforce identity | IAM Identity Center |
+| ADR-007 | Infrastructure as Code | Terraform |
+| ADR-008 | CI/CD | GitHub Actions |
+| ADR-009 | CI/CD authentication | GitHub OIDC |
+| ADR-010 | Terraform state | Amazon S3 with native locking |
+| ADR-011 | Encryption | AWS KMS |
+| ADR-012 | Security monitoring | AWS-native security services |
+| ADR-013 | Backup | AWS Backup |
+| ADR-014 | Regional strategy | EU primary and optional EU recovery Region |
+| ADR-015 | Environment isolation | Separate AWS accounts |
