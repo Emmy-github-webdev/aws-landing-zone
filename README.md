@@ -228,3 +228,335 @@ The landing zone will be designed around the following principles:
 | Cost Management | Visibility, tagging and controlled resource usage |
 | Regulatory Alignment | Relevant regulatory considerations built into design decisions |
 
+## 3. AWS Organization Design
+
+### 3.1 Overview
+
+The AWS Organization will provide centralized governance and management of multiple AWS accounts.
+
+Each account will have a defined responsibility, reducing the impact of security incidents, limiting administrative access and supporting workload isolation.
+
+The organization will use:
+- AWS Organizations for centralized account management.
+- AWS Control Tower for landing-zone governance.
+- Organizational Units (OUs) for logical account grouping.
+- Service Control Policies (SCPs) for organization-level permission guardrails.
+- IAM Identity Center for centralized workforce access.
+- AWS Account Factory for standardized account provisioning.
+
+Terraform will manage the custom organization configuration and supporting infrastructure.
+
+### 3.2 Organization Hierarchy
+
+The proposed organization hierarchy is:
+
+![](./images/az.jpeg)
+
+```text
+AWS ORGANIZATION ROOT
+│
+├── MANAGEMENT ACCOUNT
+│   └── Central organization management
+│
+├── SECURITY OU
+│   ├── AUDIT / SECURITY ACCOUNT
+│   └── LOG ARCHIVE ACCOUNT
+│
+├── INFRASTRUCTURE OU
+│   ├── NETWORK ACCOUNT
+│   ├── SHARED SERVICES ACCOUNT
+│   └── DEVOPS / PLATFORM ACCOUNT
+│
+├── WORKLOADS OU
+│   │
+│   ├── PRODUCTION OU
+│   │   └── PRODUCTION WORKLOAD ACCOUNT
+│   │
+│   └── NON-PRODUCTION OU
+│       └── DEVELOPMENT WORKLOAD ACCOUNT
+│
+└── SANDBOX OU
+    └── SANDBOX ACCOUNT
+```
+
+The hierarchy separates organization administration, security operations, shared infrastructure and application workloads.
+
+### 3.3 AWS Account Structure
+
+The portfolio implementation will use nine AWS accounts, including the Management Account.
+
+| Account | Organizational Unit | Responsibility |
+|---|---|---|
+| Management | Organization Root | Organizations, Control Tower and billing |
+| Audit / Security | Security | Security administration and audit access |
+| Log Archive | Security | Centralized audit and configuration logs |
+| Network | Infrastructure | Transit Gateway, inspection and connectivity |
+| Shared Services | Infrastructure | Shared DNS and infrastructure services |
+| DevOps / Platform | Infrastructure | Terraform automation and deployment tooling |
+| Production Workload | Production | Production banking workloads |
+| Development Workload | Non-Production | Development and testing workloads |
+| Sandbox | Sandbox | Controlled experimentation |
+
+#### 3.3.1 Management Account
+
+The Management Account is the central administrative account for AWS Organizations.
+
+Responsibilities:
+- Manage the AWS Organization.
+- Manage organization-level billing.
+- Coordinate AWS Control Tower.
+- Manage organization-wide account governance.
+- Coordinate account provisioning.
+
+Design restrictions:
+- Do not deploy application workloads here.
+- Restrict administrative access.
+- Use dedicated roles for organization-level administration.
+- Protect management credentials and privileged sessions.
+
+#### 3.3.2 Audit / Security Account
+
+This account provides centralized security administration and audit capabilities.
+
+Responsibilities:
+- Administer security monitoring services.
+- Aggregate and investigate security findings.
+- Provide controlled audit access.
+- Support security incident investigation.
+
+Potential services:
+- AWS Security Hub.
+- Amazon GuardDuty delegated administration.
+- AWS Config aggregation.
+- Amazon Inspector administration.
+
+#### 3.3.3 Log Archive Account
+
+This account provides centralized storage for AWS audit and operational logs.
+
+Responsibilities:
+- Store organization-wide CloudTrail logs.
+- Store AWS Config delivery data.
+- Provide controlled log access.
+- Protect audit records from unauthorized modification or deletion.
+
+Potential services:
+- Amazon S3.
+- AWS CloudTrail.
+- AWS Config.
+- AWS KMS.
+
+#### 3.3.4 Network Account
+
+This account hosts centralized network infrastructure.
+
+Responsibilities:
+- Manage Transit Gateway.
+- Host centralized network inspection.
+- Manage shared network connectivity.
+- Provide controlled ingress and egress.
+- Manage network segmentation.
+
+Potential services:
+- Amazon VPC.
+- AWS Transit Gateway.
+- AWS Network Firewall.
+- Route 53 Resolver.
+- AWS Site-to-Site VPN.
+
+#### 3.3.5 Shared Services Account
+
+This account hosts infrastructure shared by multiple workload accounts.
+
+Responsibilities:
+- Shared DNS services.
+- Internal service discovery.
+- Shared infrastructure components.
+- Common platform services where appropriate.
+
+Potential services:
+- Amazon Route 53.
+- Route 53 Resolver endpoints.
+- Amazon S3.
+- AWS Systems Manager.
+
+#### 3.3.6 DevOps / Platform Account
+
+This account provides the infrastructure automation and deployment platform.
+
+Responsibilities:
+- Run Terraform deployment pipelines.
+- Manage deployment automation.
+- Coordinate infrastructure releases.
+- Store approved deployment artifacts.
+- Provide platform engineering capabilities.
+
+Potential services:
+- GitHub Actions OIDC integration.
+- Amazon S3 for Terraform state, where appropriate.
+- Amazon ECR.
+- AWS IAM deployment roles.
+- AWS Systems Manager.
+
+#### 3.3.7 Production Workload Account
+
+This account hosts production banking applications and their supporting infrastructure.
+
+Responsibilities:
+- Host production application workloads.
+- Access approved shared services.
+- Use production-specific security controls.
+- Send logs and security findings to centralized accounts.
+- Use controlled backup and recovery processes.
+
+Production resources must be isolated from development and sandbox environments.
+
+#### 3.3.8 Development Workload Account
+
+This account hosts development and testing infrastructure.
+
+Responsibilities:
+- Support application development.
+- Run integration and testing environments.
+- Validate infrastructure changes.
+- Support application deployment testing.
+
+Development workloads must not have unrestricted access to production resources or data.
+
+#### 3.3.9 Sandbox Account
+
+This account provides an isolated environment for experimentation.
+
+Responsibilities:
+- Test new AWS services.
+- Validate technical concepts.
+- Experiment with Terraform modules.
+- Support learning and demonstrations.
+
+The account will have spending limits and restrictive security guardrails.
+
+### 3.4 Organizational Units
+
+Organizational Units group accounts according to their purpose and security requirements.
+
+| OU | Purpose | Governance approach |
+|---|---|---|
+| Security | Central security and audit accounts | Strong protection and restricted administration |
+| Infrastructure | Shared network and platform services | Controlled infrastructure administration |
+| Workloads | Banking application environments | Workload-specific controls |
+| Production | Critical production workloads | Strongest operational restrictions |
+| Non-Production | Development and testing | Controlled development access |
+| Sandbox | Experimental workloads | Restricted services and spending controls |
+
+Production and Non-Production are nested under the Workloads OU.
+
+The Management Account remains outside these workload OUs.
+
+### 3.5 Service Control Policies
+
+Service Control Policies will establish permission guardrails across the organization.
+
+Proposed guardrails include:
+
+| SCP control | Objective |
+|---|---|
+| Restrict unapproved Regions | Limit resource deployment to approved AWS Regions |
+| Protect security services | Restrict disabling selected security controls |
+| Protect audit logging | Restrict unauthorized modification of logging configuration |
+| Protect organization management | Restrict unauthorized organization-level changes |
+| Restrict public exposure | Limit selected public resource configurations |
+| Restrict leaving the organization | Prevent unauthorized account removal |
+
+SCPs define the maximum available permissions; they do not grant permissions themselves.
+
+The policies must be tested against legitimate AWS service operations and Control Tower requirements before enforcement.
+
+### 3.6 Identity and Access Management
+
+IAM Identity Center will provide centralized workforce access.
+
+The proposed access model is:
+
+```text
+Corporate Identity Provider
+          │
+          ▼
+   IAM Identity Center
+          │
+          ▼
+   Permission Sets
+          │
+          ▼
+     AWS Accounts
+          │
+          ▼
+   Temporary IAM Roles
+```
+
+Design principles:
+- Federated workforce authentication.
+- MFA for privileged access.
+- Least-privilege permission sets.
+- Separate administrative and operational permissions.
+- Temporary credentials instead of long-lived access keys.
+- Auditable privileged access.
+
+### 3.7 Account Provisioning and Governance
+
+AWS Control Tower Account Factory will provide standardized account provisioning.
+
+AWS Account Factory for Terraform (AFT) can be introduced to automate account requests and account customization through Terraform and Git-based workflows.
+
+The intended provisioning process is:
+
+```text
+Account Request
+      │
+      ▼
+Approved Account Configuration
+      │
+      ▼
+Account Factory / AFT
+      │
+      ▼
+AWS Account Creation
+      │
+      ▼
+OU Assignment
+      │
+      ▼
+Baseline Governance
+      │
+      ▼
+Account Ready for Workloads
+```
+
+For this portfolio, account provisioning should be automated where practical without introducing unnecessary platform complexity.
+
+### 3.8 Regional Strategy
+
+The initial architecture will use a primary AWS Region in the EU.
+
+A secondary EU Region may be used for disaster recovery, depending on service availability, workload recovery requirements and data-transfer considerations.
+
+Region restrictions will be implemented through organization guardrails, with appropriate exceptions for globally operated AWS services and required control-plane operations.
+
+The final Region selection will be confirmed during network and resilience design.
+
+### 3.9 Implementation Scope
+
+The architecture distinguishes between the full reference design and the resources actually deployed for the portfolio.
+
+**Initial deployment targets:**
+- AWS Organization and account structure.
+- Security and infrastructure OUs.
+- Development and production workload separation.
+- Organization-level governance controls.
+- Centralized logging and security foundations.
+
+**Potential later additions:**
+- AFT-based account provisioning.
+- Dedicated backup account.
+- Separate PCI DSS or SWIFT environments.
+- Additional business-unit workload accounts.
+- Secondary-region disaster recovery.
