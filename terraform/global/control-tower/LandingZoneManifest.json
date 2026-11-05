@@ -1,0 +1,20 @@
+{
+  "governedRegions": [
+    "us-east-1",
+    "us-west-2"
+  ],
+  "centralizedLogging": {
+    "enabled": true,
+    "configurations": {
+      "loggingBucket": {
+        "retentionDays": 365
+      },
+      "accessLoggingBucket": {
+        "retentionDays": 365
+      }
+    }
+  },
+  "accessManagement": {
+    "enabled": true
+  }
+}
