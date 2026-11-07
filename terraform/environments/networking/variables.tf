@@ -1,92 +1,37 @@
 
-variable "terraform_state_bucket" {
-  description = "S3 bucket containing Terraform remote state"
+variable "enable_centralized_egress" {
+  description = "Enable centralized egress and inspection"
+  type        = bool
+  default     = true
+}
+
+variable "egress_vpc_cidr" {
+  description = "Centralized egress VPC CIDR"
   type        = string
+  default     = "10.0.0.0/16"
 }
 
-variable "state_region" {
-  description = "Region hosting Terraform state"
-  type        = string
+variable "availability_zone_ids" {
+  description = "Availability Zone IDs shared by participating accounts"
+  type        = list(string)
 }
 
-variable "infrastructure_account_id" {
-  type        = string
+variable "firewall_log_retention_days" {
+  type    = number
+  default = 90
 }
 
-variable "production_account_id" {
-  type        = string
+variable "firewall_allowed_tcp_ports" {
+  type    = list(number)
+  default = [80, 443]
 }
 
-variable "nonproduction_account_id" {
-  type        = string
+variable "firewall_allowed_udp_ports" {
+  type    = list(number)
+  default = [53]
 }
 
-variable "infrastructure_role_arn" {
-  type        = string
-}
-
-variable "production_role_arn" {
-  type        = string
-}
-
-variable "nonproduction_role_arn" {
-  type        = string
-}
-
-variable "primary_region" {
-  type    = string
-  default = "eu-west-1"
-}
-
-variable "availability_zones" {
-  type = list(string)
-}
-
-variable "infrastructure_vpc_cidr" {
-  type    = string
-  default = "10.10.0.0/16"
-}
-
-variable "production_vpc_cidr" {
-  type    = string
-  default = "10.20.0.0/16"
-}
-
-variable "nonproduction_vpc_cidr" {
-  type    = string
-  default = "10.30.0.0/16"
-}
-
-variable "enable_nat_gateway" {
-  type    = bool
-  default = true
-}
-
-variable "enable_flow_logs" {
-  type    = bool
-  default = true
-}
-
-variable "enable_s3_endpoint" {
-  type    = bool
-  default = true
-}
-
-variable "enable_dynamodb_endpoint" {
-  type    = bool
-  default = true
-}
-
-variable "enable_ssm_endpoints" {
-  type    = bool
-  default = true
-}
-
-variable "common_tags" {
-  type = map(string)
-
-  default = {
-    ManagedBy = "Terraform"
-    Project   = "AWS-Landing-Zone"
-  }
+variable "firewall_home_net_cidrs" {
+  description = "Internal CIDRs protected by the firewall"
+  type        = list(string)
 }

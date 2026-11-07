@@ -1,7 +1,9 @@
+
 module "networking" {
   source = "../../modules/networking"
 
   providers = {
+    aws                = aws.infrastructure
     aws.infrastructure = aws.infrastructure
     aws.production     = aws.production
     aws.nonproduction  = aws.nonproduction
@@ -15,19 +17,26 @@ module "networking" {
 
   primary_region = var.primary_region
 
-  availability_zones = var.availability_zones
+  availability_zones    = var.availability_zones
+  availability_zone_ids = var.availability_zone_ids
 
   infrastructure_vpc_cidr = var.infrastructure_vpc_cidr
   production_vpc_cidr     = var.production_vpc_cidr
   nonproduction_vpc_cidr  = var.nonproduction_vpc_cidr
 
-  enable_nat_gateway = var.enable_nat_gateway
+  enable_centralized_egress = var.enable_centralized_egress
+  egress_vpc_cidr           = var.egress_vpc_cidr
+
+  firewall_home_net_cidrs = var.firewall_home_net_cidrs
+
+  firewall_log_retention_days = var.firewall_log_retention_days
+  firewall_allowed_tcp_ports = var.firewall_allowed_tcp_ports
+  firewall_allowed_udp_ports = var.firewall_allowed_udp_ports
 
   enable_flow_logs = var.enable_flow_logs
 
   enable_s3_endpoint       = var.enable_s3_endpoint
   enable_dynamodb_endpoint = var.enable_dynamodb_endpoint
-  enable_ssm_endpoints     = var.enable_ssm_endpoints
 
   common_tags = var.common_tags
 }

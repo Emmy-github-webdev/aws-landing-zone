@@ -1,28 +1,15 @@
-
-output "transit_gateway_id" {
-  value = module.networking.transit_gateway_id
+output "egress_vpc_id" {
+  value = module.networking.egress_vpc_id
 }
 
-output "transit_gateway_arn" {
-  value = module.networking.transit_gateway_arn
+output "egress_firewall_arn" {
+  value = module.networking.egress_firewall_arn
 }
 
-output "vpc_ids" {
-  value = module.networking.vpc_ids
+output "egress_nat_public_ips" {
+  value = module.networking.egress_nat_public_ips
 }
 
-output "vpc_cidrs" {
-  value = module.networking.vpc_cidrs
-}
-
-output "transit_gateway_attachments" {
-  value = module.networking.transit_gateway_attachments
-}
-
-output "private_subnet_ids" {
-  value = module.networking.private_subnet_ids
-}
-
-output "isolated_subnet_ids" {
-  value = module.networking.isolated_subnet_ids
+output "egress_firewall_endpoint_ids" {
+  value = module.networking.egress_firewall_endpoint_ids
 }
