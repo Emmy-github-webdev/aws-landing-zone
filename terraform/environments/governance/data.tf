@@ -5,7 +5,7 @@ data "terraform_remote_state" "organizations" {
   config = {
     bucket = "emmanuelogah-aws-lz-tfstate"
     key    = "landing-zone/organizations/terraform.tfstate"
-    region = "us-east-1"
+    region = var.aws_region
   }
 }
 
