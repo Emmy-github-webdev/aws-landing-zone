@@ -94,3 +94,43 @@ output "central_dns_kinesis_stream_name" {
 
   value = aws_kinesis_stream.central_dns.name
 }
+
+
+output "central_dns_archive_bucket_name" {
+  description = "Central DNS archive bucket"
+
+  value = try(
+    aws_s3_bucket.central_dns_archive[0].bucket,
+    null
+  )
+}
+
+output "central_dns_archive_bucket_arn" {
+  description = "Central DNS archive bucket ARN"
+
+  value = try(
+    aws_s3_bucket.central_dns_archive[0].arn,
+    null
+  )
+}
+
+output "dns_firehose_infrastructure_arn" {
+  value = try(
+    module.dns_firehose_infrastructure[0].firehose_stream_arn,
+    null
+  )
+}
+
+output "dns_firehose_production_arn" {
+  value = try(
+    module.dns_firehose_production[0].firehose_stream_arn,
+    null
+  )
+}
+
+output "dns_firehose_nonproduction_arn" {
+  value = try(
+    module.dns_firehose_nonproduction[0].firehose_stream_arn,
+    null
+  )
+}

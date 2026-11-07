@@ -97,3 +97,29 @@ variable "common_tags" {
     Project   = "AWS-Landing-Zone"
   }
 }
+
+
+variable "dns_archive_retention_days" {
+  description = "Approved S3 Object Lock compliance retention period"
+  type        = number
+
+  validation {
+    condition = (
+      var.dns_archive_retention_days >= 90 &&
+      var.dns_archive_retention_days <= 36500
+    )
+
+    error_message = "DNS archive retention must be between 90 and 36500 days."
+  }
+}
+
+variable "dns_archive_transition_days" {
+  description = "Days before DNS archive objects transition to Glacier Flexible Retrieval"
+  type        = number
+  default     = 90
+
+  validation {
+    condition     = var.dns_archive_transition_days >= 90
+    error_message = "Glacier Flexible Retrieval transition must be at least 90 days."
+  }
+}

@@ -33,3 +33,23 @@ output "central_dns_log_destination_arn" {
 output "central_dns_kinesis_stream_arn" {
   value = module.networking.central_dns_kinesis_stream_arn
 }
+
+output "central_dns_archive_bucket_name" {
+  value = module.networking.central_dns_archive_bucket_name
+}
+
+output "central_dns_archive_bucket_arn" {
+  value = module.networking.central_dns_archive_bucket_arn
+}
+
+output "dns_firehose_infrastructure_arn" {
+  value = module.networking.dns_firehose_infrastructure_arn
+}
+
+output "dns_firehose_production_arn" {
+  value = module.networking.dns_firehose_production_arn
+}
+
+output "dns_firehose_nonproduction_arn" {
+  value = module.networking.dns_firehose_nonproduction_arn
+}
