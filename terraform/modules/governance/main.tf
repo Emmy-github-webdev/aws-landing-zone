@@ -8,6 +8,16 @@ resource "aws_organizations_policy" "region_restriction" {
   tags = var.policy_tags
 }
 
+resource "aws_organizations_policy" "organization_protection" {
+  name        = "DenyLeavingOrganization"
+  description = "Prevent member accounts from leaving the organization"
+  type        = "SERVICE_CONTROL_POLICY"
+
+  content = jsonencode(local.organization_protection_policy)
+
+  tags = var.policy_tags
+}
+
 # Attach the region policy to the workloads organization
 resource "aws_organizations_policy_attachment" "region_workloads" {
   policy_id = aws_organizations_policy.region_restriction.id
