@@ -38,5 +38,24 @@ module "networking" {
   enable_s3_endpoint       = var.enable_s3_endpoint
   enable_dynamodb_endpoint = var.enable_dynamodb_endpoint
 
+  
+  enable_dns_security = var.enable_dns_security
+
+  dns_resolver_subnet_ids = var.dns_resolver_subnet_ids
+
+  dns_onpremises_resolver_ips = var.dns_onpremises_resolver_ips
+
+  dns_private_domain = var.dns_private_domain
+
+  dns_firewall_blocked_domains = var.dns_firewall_blocked_domains
+
+  dns_allowed_query_cidrs = var.dns_allowed_query_cidrs
+
+  dns_onpremises_cidrs = var.dns_onpremises_cidrs
+
+  dns_log_retention_days = var.dns_log_retention_days
+
+  organization_arn = var.organization_arn
+
   common_tags = var.common_tags
 }

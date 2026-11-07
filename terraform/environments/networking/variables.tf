@@ -35,3 +35,56 @@ variable "firewall_home_net_cidrs" {
   description = "Internal CIDRs protected by the firewall"
   type        = list(string)
 }
+
+
+variable "enable_dns_security" {
+  description = "Enable centralized DNS Resolver and DNS Firewall"
+  type        = bool
+  default     = true
+}
+
+variable "dns_resolver_subnet_ids" {
+  description = "Infrastructure VPC private subnet IDs for DNS Resolver endpoints"
+  type        = list(string)
+}
+
+variable "dns_onpremises_resolver_ips" {
+  description = "Corporate DNS server IP addresses"
+  type        = list(string)
+  default     = []
+}
+
+variable "dns_private_domain" {
+  description = "Corporate private DNS domain"
+  type        = string
+  default     = "corp.example.com"
+}
+
+variable "dns_firewall_blocked_domains" {
+  description = "Blocked DNS domains"
+  type        = list(string)
+  default     = []
+}
+
+variable "dns_allowed_query_cidrs" {
+  description = "Approved CIDRs for inbound DNS queries"
+  type        = list(string)
+  default     = []
+}
+
+variable "dns_onpremises_cidrs" {
+  description = "On-premises networks"
+  type        = list(string)
+  default     = []
+}
+
+variable "dns_log_retention_days" {
+  description = "DNS log retention period"
+  type        = number
+  default     = 90
+}
+
+variable "organization_arn" {
+  description = "AWS Organization ARN"
+  type        = string
+}

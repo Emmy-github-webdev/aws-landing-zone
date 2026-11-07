@@ -75,6 +75,13 @@ jobs:
         working-directory: ${{ env.TF_WORKING_DIR }}
         run: terraform validate
 
+      - name: Validate DNS Security Configuration
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform console -no-color <<EOF
+          var.enable_dns_security
+          EOF
+
       - name: Terraform Plan
         if: github.event_name != 'workflow_dispatch' || github.event.inputs.action == 'plan'
         working-directory: ${{ env.TF_WORKING_DIR }}

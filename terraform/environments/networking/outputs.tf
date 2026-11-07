@@ -13,3 +13,15 @@ output "egress_nat_public_ips" {
 output "egress_firewall_endpoint_ids" {
   value = module.networking.egress_firewall_endpoint_ids
 }
+
+output "dns_inbound_resolver_ips" {
+  value = module.networking.dns_inbound_resolver_ips
+}
+
+output "dns_outbound_resolver_endpoint_id" {
+  value = module.networking.dns_outbound_resolver_endpoint_id
+}
+
+output "dns_corporate_resolver_rule_id" {
+  value = module.networking.dns_corporate_resolver_rule_id
+}
