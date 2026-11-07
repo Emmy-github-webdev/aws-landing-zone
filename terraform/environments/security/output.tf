@@ -1,19 +1,28 @@
-output "security_account_id" {
-  value = module.security.security_account_id
+
+output "primary_guardduty_detector_id" {
+  value = module.security_primary.guardduty_detector_id
 }
 
-output "guardduty_detector_ids" {
-  value = module.security.guardduty_detector_ids
+output "secondary_guardduty_detector_id" {
+  value = module.security_secondary.guardduty_detector_id
 }
 
-output "securityhub_account_ids" {
-  value = module.security.securityhub_account_ids
+output "primary_access_analyzer_arn" {
+  value = module.security_primary.access_analyzer_arn
 }
 
-output "config_aggregator_arn" {
-  value = module.security.config_aggregator_arn
+output "secondary_access_analyzer_arn" {
+  value = module.security_secondary.access_analyzer_arn
+}
+
+output "audit_bucket_name" {
+  value = module.security_primary.audit_bucket_name
 }
 
 output "cloudtrail_arn" {
-  value = module.security.cloudtrail_arn
+  value = module.security_primary.cloudtrail_arn
+}
+
+output "config_aggregator_arn" {
+  value = module.security_primary.config_aggregator_arn
 }

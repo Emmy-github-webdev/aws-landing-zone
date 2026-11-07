@@ -1,33 +1,98 @@
 
-name: AWS Security
+name: AWS Landing Zone - Security
 
 on:
   pull_request:
     paths:
-      - "modules/security/**"
-      - "environments/security/**"
-      - ".github/workflows/security.yml"
+      - 'modules/security/**'
+      - 'environments/security/**'
+      - '.github/workflows/security.yml'
 
   push:
     branches:
       - main
     paths:
-      - "modules/security/**"
-      - "environments/security/**"
-      - ".github/workflows/security.yml"
+      - 'modules/security/**'
+      - 'environments/security/**'
+      - '.github/workflows/security.yml'
 
   workflow_dispatch:
+    inputs:
+      action:
+        description: Terraform operation
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+        default: plan
 
 permissions:
-  contents: read
   id-token: write
-  pull-requests: write
+  contents: read
+
+concurrency:
+  group: terraform-security
+  cancel-in-progress: false
+
+env:
+  TF_VERSION: '1.10.5'
+  AWS_REGION: 'eu-west-1'
+  TF_WORKING_DIR: 'environments/security'
 
 jobs:
-  deploy:
-    uses: ./.github/workflows/terraform-reusable.yaml
+  terraform:
+    name: Security Terraform
+    runs-on: ubuntu-latest
 
-    with:
-      environment: security
-      working_directory: environments/security
-      state_key: security/terraform.tfstate
+    environment:
+      name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy' && 'security-destroy' || 'security' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_SECURITY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event_name != 'workflow_dispatch' || github.event.inputs.action == 'plan'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -input=false
+
+      - name: Terraform Apply
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          terraform plan -input=false -out=tfplan
+          terraform apply -input=false -auto-approve tfplan
+
+      - name: Terraform Destroy Plan
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform plan -destroy -input=false
+
+      - name: Terraform Destroy
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: terraform destroy -input=false -auto-approve
