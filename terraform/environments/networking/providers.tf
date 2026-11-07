@@ -48,3 +48,12 @@ provider "aws" {
     tags = var.common_tags
   }
 }
+
+provider "aws" {
+  alias  = "logging"
+  region = var.primary_region
+
+  assume_role {
+    role_arn = var.logging_role_arn
+  }
+}

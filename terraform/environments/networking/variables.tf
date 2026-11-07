@@ -88,3 +88,28 @@ variable "organization_arn" {
   description = "AWS Organization ARN"
   type        = string
 }
+
+variable "logging_role_arn" {
+  description = "IAM role ARN for the Logging account"
+  type        = string
+}
+
+variable "logging_account_id" {
+  description = "AWS Logging account ID"
+  type        = string
+}
+
+variable "infrastructure_account_id" {
+  description = "AWS Infrastructure account ID"
+  type        = string
+}
+
+variable "production_account_id" {
+  description = "AWS Production account ID"
+  type        = string
+}
+
+variable "nonproduction_account_id" {
+  description = "AWS NonProduction account ID"
+  type        = string
+}

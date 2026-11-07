@@ -25,3 +25,11 @@ output "dns_outbound_resolver_endpoint_id" {
 output "dns_corporate_resolver_rule_id" {
   value = module.networking.dns_corporate_resolver_rule_id
 }
+
+output "central_dns_log_destination_arn" {
+  value = module.networking.central_dns_log_destination_arn
+}
+
+output "central_dns_kinesis_stream_arn" {
+  value = module.networking.central_dns_kinesis_stream_arn
+}

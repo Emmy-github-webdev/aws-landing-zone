@@ -76,3 +76,21 @@ output "dns_nonproduction_log_group" {
     null
   )
 }
+
+output "central_dns_log_destination_arn" {
+  description = "Central CloudWatch Logs destination ARN"
+
+  value = aws_cloudwatch_log_destination.central_dns.arn
+}
+
+output "central_dns_kinesis_stream_arn" {
+  description = "Central DNS Kinesis stream ARN"
+
+  value = aws_kinesis_stream.central_dns.arn
+}
+
+output "central_dns_kinesis_stream_name" {
+  description = "Central DNS Kinesis stream name"
+
+  value = aws_kinesis_stream.central_dns.name
+}
