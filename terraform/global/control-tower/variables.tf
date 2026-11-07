@@ -6,6 +6,6 @@ variable "aws_region" {
 }
 variable "control_tower_version" {
   description = "AWS Control Tower version"
-  type = string
-  default = "4.0"
+  type        = string
+  default     = "4.0"
 }
