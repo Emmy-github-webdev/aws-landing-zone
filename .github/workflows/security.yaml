@@ -1,0 +1,33 @@
+
+name: AWS Security
+
+on:
+  pull_request:
+    paths:
+      - "modules/security/**"
+      - "environments/security/**"
+      - ".github/workflows/security.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "modules/security/**"
+      - "environments/security/**"
+      - ".github/workflows/security.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/terraform-reusable.yaml
+
+    with:
+      environment: security
+      working_directory: environments/security
+      state_key: security/terraform.tfstate

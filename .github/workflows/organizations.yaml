@@ -1,0 +1,33 @@
+
+name: AWS Organizations
+
+on:
+  pull_request:
+    paths:
+      - "modules/organizations/**"
+      - "environments/organizations/**"
+      - ".github/workflows/organizations.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "modules/organizations/**"
+      - "environments/organizations/**"
+      - ".github/workflows/organizations.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/terraform-reusable.yaml
+
+    with:
+      environment: organizations
+      working_directory: environments/organizations
+      state_key: organizations/terraform.tfstate

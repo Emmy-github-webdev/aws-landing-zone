@@ -1,0 +1,33 @@
+
+name: AWS Governance
+
+on:
+  pull_request:
+    paths:
+      - "modules/governance/**"
+      - "environments/governance/**"
+      - ".github/workflows/governance.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "modules/governance/**"
+      - "environments/governance/**"
+      - ".github/workflows/governance.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+jobs:
+  deploy:
+    uses: ./.github/workflows/terraform-reusable.yaml
+
+    with:
+      environment: governance
+      working_directory: environments/governance
+      state_key: governance/terraform.tfstate
