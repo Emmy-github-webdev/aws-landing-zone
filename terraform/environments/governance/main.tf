@@ -12,4 +12,6 @@ module "governance" {
   sandbox_ou_id = var.sandbox_ou_id
 
   approved_regions = var.approved_regions
+
+  policy_tags = var.common_tags
 }

@@ -20,7 +20,7 @@
       "Resource": "*",
       "Condition": {
         "StringNotEquals": {
-          "aws:RequestedRegion": []
+          "aws:RequestedRegion": ${approved_regions}
         }
       }
     }

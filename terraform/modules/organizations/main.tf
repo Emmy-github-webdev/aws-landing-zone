@@ -14,21 +14,9 @@ resource "aws_organizations_organizational_unit" "infrastructure" {
     prevent_destroy = true
 
     precondition {
-      condition = (
-        data.aws_organizations_organization.current.id ==
-        var.expected_organization_id
-      )
+      condition = local.organization_valid
 
       error_message = "Unexpected AWS Organization. Cannot create Infrastructure OU."
-    }
-
-    precondition {
-      condition = !contains(
-        [for ou in data.aws_organizations_organizational_units.root_ous.children : lower(ou.name)],
-        lower(var.infrastructure_ou_name)
-      )
-
-      error_message = "Infrastructure OU already exists. Import it instead of creating another one."
     }
   }
 }
@@ -49,21 +37,9 @@ resource "aws_organizations_organizational_unit" "workloads" {
     prevent_destroy = true
 
     precondition {
-      condition = (
-        data.aws_organizations_organization.current.id ==
-        var.expected_organization_id
-      )
+      condition = local.organization_valid
 
       error_message = "Unexpected AWS Organization. Cannot create Workloads OU."
-    }
-
-    precondition {
-      condition = !contains(
-        [for ou in data.aws_organizations_organizational_units.root_ous.children : lower(ou.name)],
-        lower(var.workloads_ou_name)
-      )
-
-      error_message = "Workloads OU already exists. Import it instead of creating another one."
     }
   }
 }
@@ -81,6 +57,12 @@ resource "aws_organizations_organizational_unit" "production" {
 
   lifecycle {
     prevent_destroy = true
+
+    precondition {
+      condition = local.organization_valid
+
+      error_message = "Unexpected AWS Organization. Cannot create production OU."
+    }
   }
 }
 
@@ -96,6 +78,12 @@ resource "aws_organizations_organizational_unit" "nonproduction" {
 
   lifecycle {
     prevent_destroy = true
+
+    precondition {
+      condition = local.organization_valid
+
+      error_message = "Unexpected AWS Organization. Cannot create Nonproduction OU."
+    }
   }
 }
 
