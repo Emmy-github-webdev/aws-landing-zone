@@ -4,13 +4,13 @@ variable "aws_region" {
 }
 
 variable "expected_organization_id" {
-  type    = string
+  type = string
 }
 
 variable "security_account_id" {
-  type    = string
+  type = string
 }
 
 variable "logging_account_id" {
-  type    = string
+  type = string
 }
