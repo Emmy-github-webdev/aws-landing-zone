@@ -3,7 +3,7 @@ module "governance" {
   source = "../../modules/governance"
 
   organization_id = var.expected_organization_id
-
+  organization_root_id= var.organization_root_id
   infrastructure_ou_id = local.infrastructure_ou_id
   workloads_ou_id      = local.workloads_ou_id
   production_ou_id     = local.production_ou_id

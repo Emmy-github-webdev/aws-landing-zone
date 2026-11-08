@@ -47,9 +47,4 @@ variable "organization_root_id" {
 variable "policy_tags" {
   description = "Tags applied to custom SCPs"
   type        = map(string)
-
-  default = {
-    ManagedBy = "Terraform"
-    Project   = "AWS-Landing-Zone"
-  }
 }

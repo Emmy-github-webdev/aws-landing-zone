@@ -97,12 +97,6 @@ variable "enable_config" {
 variable "policy_tags" {
   description = "Tags applied to security resources"
   type        = map(string)
-
-  default = {
-    ManagedBy   = "Terraform"
-    Environment = "Security"
-    Purpose     = "AWS Landing Zone"
-  }
 }
 
 variable "config_aggregator_role_arn" {

@@ -88,14 +88,9 @@ variable "enable_ssm_endpoints" {
   default     = true
 }
 
-variable "common_tags" {
+variable "policy_tags" {
   description = "Common networking resource tags"
   type        = map(string)
-
-  default = {
-    ManagedBy = "Terraform"
-    Project   = "AWS-Landing-Zone"
-  }
 }
 
 

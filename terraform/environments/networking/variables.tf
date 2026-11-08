@@ -1,3 +1,13 @@
+variable "common_tags" {
+  description = "Common networking resource tags"
+  type        = map(string)
+
+  default = {
+    ManagedBy = "Terraform"
+    Environment="Networking"
+    Project   = "AWS-Landing-Zone"
+  }
+}
 
 variable "enable_centralized_egress" {
   description = "Enable centralized egress and inspection"

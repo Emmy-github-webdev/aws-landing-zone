@@ -1,4 +1,3 @@
-
 module "networking" {
   source = "../../modules/networking"
 
@@ -57,5 +56,5 @@ module "networking" {
 
   organization_arn = var.organization_arn
 
-  common_tags = var.common_tags
+  policy_tags = var.common_tags
 }
