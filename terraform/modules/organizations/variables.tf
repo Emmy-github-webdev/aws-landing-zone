@@ -6,13 +6,11 @@ variable "expected_organization_id" {
 variable "security_ou_name" {
   description = "Existing Security OU name"
   type        = string
-  default     = "Security"
 }
 
 variable "sandbox_ou_name" {
   description = "Existing Sandbox OU name"
   type        = string
-  default     = "Sandbox"
 }
 
 variable "security_account_id" {
@@ -28,25 +26,21 @@ variable "logging_account_id" {
 variable "infrastructure_ou_name" {
   description = "Name of the Infrastructure OU"
   type        = string
-  default     = "Infrastructure"
 }
 
 variable "workloads_ou_name" {
   description = "Name of the Workloads OU"
   type        = string
-  default     = "Workloads"
 }
 
 variable "production_ou_name" {
   description = "Name of the Production child OU"
   type        = string
-  default     = "Production"
 }
 
 variable "nonproduction_ou_name" {
   description = "Name of the NonProduction child OU"
   type        = string
-  default     = "NonProduction"
 }
 
 variable "control_tower_baseline_arn" {
