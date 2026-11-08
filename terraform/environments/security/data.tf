@@ -11,7 +11,7 @@ data "terraform_remote_state" "organizations" {
 
 # Reference the output from the Organizations module
 locals {
-  infrastructure_ou_id = data.terraform_remote_state.organizations.outputs.infrastructure_ou_id
+  # infrastructure_ou_id = data.terraform_remote_state.organizations.outputs.infrastructure_ou_id
 
   management_account_id = data.terraform_remote_state.organizations.outputs.management_account_id
 

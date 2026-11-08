@@ -11,7 +11,7 @@ module "security_primary" {
   }
 
   organization_id      = var.organization_id
-  management_account_id = var.management_account_id
+  management_account_id = local.management_account_id
   security_account_id   = var.security_account_id
   logging_account_id    = var.logging_account_id
 
@@ -44,7 +44,7 @@ module "security_secondary" {
   }
 
   organization_id       = var.organization_id
-  management_account_id = var.management_account_id
+  management_account_id = local.management_account_id
   security_account_id   = var.security_account_id
   logging_account_id    = var.logging_account_id
 
