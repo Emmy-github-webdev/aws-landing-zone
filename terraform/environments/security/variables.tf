@@ -19,20 +19,6 @@ variable "logging_account_id" {
   description = "Logging account ID"
 }
 
-variable "management_role_arn" {
-  type        = string
-  description = "Cross-account deployment role in management account"
-}
-
-variable "security_role_arn" {
-  type        = string
-  description = "Cross-account deployment role in security account"
-}
-
-variable "logging_role_arn" {
-  type        = string
-  description = "Cross-account deployment role in logging account"
-}
 
 variable "primary_region" {
   type        = string
@@ -56,7 +42,6 @@ variable "config_aggregator_role_arn" {
 
 variable "environment" {
   type    = string
-  default = "production"
 }
 
 variable "common_tags" {

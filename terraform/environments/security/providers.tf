@@ -1,4 +1,3 @@
-
 terraform {
   required_version = ">= 1.9.0"
 
@@ -14,10 +13,6 @@ terraform {
 provider "aws" {
   region = var.primary_region
 
-  assume_role {
-    role_arn = var.security_role_arn
-  }
-
   default_tags {
     tags = var.common_tags
   }
@@ -27,10 +22,6 @@ provider "aws" {
 provider "aws" {
   alias  = "management"
   region = var.primary_region
-
-  assume_role {
-    role_arn = var.management_role_arn
-  }
 
   default_tags {
     tags = var.common_tags
@@ -42,10 +33,6 @@ provider "aws" {
   alias  = "logging"
   region = var.primary_region
 
-  assume_role {
-    role_arn = var.logging_role_arn
-  }
-
   default_tags {
     tags = var.common_tags
   }
@@ -55,10 +42,6 @@ provider "aws" {
 provider "aws" {
   alias  = "secondary"
   region = var.secondary_region
-
-  assume_role {
-    role_arn = var.security_role_arn
-  }
 
   default_tags {
     tags = var.common_tags
