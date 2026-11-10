@@ -1,0 +1,104 @@
+# workflow name
+name: Terraform Reusable Deployment
+
+# workflow inputs
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+
+      working_directory:
+        required: true
+        type: string
+
+      state_key:
+        required: true
+        type: string
+
+      apply_enabled:
+        required: false
+        type: boolean
+        default: true
+
+# Permissions required for the workflow
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+# Concurency settings to prevent multiple runs for the same environment
+concurrency:
+  group: terraform-${{ inputs.environment }}
+  cancel-in-progress: false
+
+# Jobs definition
+jobs:
+  terraform:
+    name: Terraform ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+
+    environment:
+      name: ${{ inputs.environment }}
+
+    defaults:
+      run:
+        working-directory: ${{ inputs.working_directory }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+
+      - name: Terraform Format
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          terraform init -input=false \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
+            -backend-config="key=${{ inputs.state_key }}" \
+            -backend-config="region=us-east-1" \
+            -backend-config="encrypt=true" \
+            -backend-config="kms_key_id=${{ vars.TF_STATE_KMS_KEY }}" \
+            -backend-config="use_lockfile=true"
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan \
+            -input=false \
+            -lock-timeout=5m \
+            -out=tfplan
+
+      - name: Upload Terraform Plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ inputs.environment }}
+          path: ${{ inputs.working_directory }}/tfplan
+          retention-days: 1
+
+      - name: Terraform Apply
+        if: >
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' &&
+          inputs.apply_enabled == true
+        run: |
+          terraform apply \
+            -input=false \
+            -lock-timeout=5m \
+            tfplan
