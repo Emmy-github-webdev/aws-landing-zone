@@ -8,7 +8,6 @@ variable "enable_centralized_egress" {
 variable "egress_vpc_cidr" {
   description = "CIDR for centralized inspection VPC"
   type        = string
-  default     = "10.0.0.0/16"
 }
 
 variable "egress_firewall_subnet_newbits" {
@@ -38,19 +37,16 @@ variable "egress_nat_gateway_per_az" {
 variable "firewall_log_retention_days" {
   description = "CloudWatch firewall log retention"
   type        = number
-  default     = 90
 }
 
 variable "firewall_allowed_tcp_ports" {
   description = "Allowed outbound TCP ports"
   type        = list(number)
-  default     = [80, 443]
 }
 
 variable "firewall_allowed_udp_ports" {
   description = "Allowed outbound UDP ports"
   type        = list(number)
-  default     = [53]
 }
 
 variable "availability_zone_ids" {
@@ -66,5 +62,4 @@ variable "availability_zone_ids" {
 variable "firewall_home_net_cidrs" {
   description = "Internal CIDRs protected by the firewall"
   type        = list(string)
-  default = [ "10.20.0.0/16", "10.30.0.0/16", "10.10.0.0/16" ]
 }

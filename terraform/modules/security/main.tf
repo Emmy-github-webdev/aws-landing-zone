@@ -1,8 +1,8 @@
 resource "terraform_data" "account_validation" {
   input = {
-    security_account_id  = data.aws_caller_identity.security.account_id
+    security_account_id   = data.aws_caller_identity.security.account_id
     management_account_id = data.aws_caller_identity.management.account_id
-    logging_account_id   = data.aws_caller_identity.logging.account_id
+    logging_account_id    = data.aws_caller_identity.logging.account_id
   }
 
   lifecycle {

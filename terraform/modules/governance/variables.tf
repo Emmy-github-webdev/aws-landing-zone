@@ -26,7 +26,7 @@ variable "sandbox_ou_id" {
 variable "approved_regions" {
   description = "Approved AWS deployment regions"
   type        = list(string)
-  
+
   validation {
     condition     = length(var.approved_regions) > 0
     error_message = "At least one approved AWS region must be specified."

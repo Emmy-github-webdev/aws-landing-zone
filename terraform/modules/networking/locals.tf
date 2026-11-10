@@ -46,7 +46,7 @@ locals {
   }
 
   subnet_tiers = {
-    private = 0
+    private  = 0
     isolated = 4
   }
 

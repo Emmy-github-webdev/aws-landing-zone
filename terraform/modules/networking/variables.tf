@@ -1,4 +1,3 @@
-
 variable "organization_id" {
   description = "AWS Organization ID"
   type        = string
@@ -37,19 +36,16 @@ variable "availability_zones" {
 variable "infrastructure_vpc_cidr" {
   description = "Infrastructure VPC CIDR"
   type        = string
-  default     = "10.10.0.0/16"
 }
 
 variable "production_vpc_cidr" {
   description = "Production VPC CIDR"
   type        = string
-  default     = "10.20.0.0/16"
 }
 
 variable "nonproduction_vpc_cidr" {
   description = "NonProduction VPC CIDR"
   type        = string
-  default     = "10.30.0.0/16"
 }
 
 variable "enable_nat_gateway" {

@@ -21,9 +21,9 @@ variable "approved_regions" {
 variable "common_tags" {
   description = "Common resource tags"
   type        = map(string)
-    default = {
-    ManagedBy = "Terraform"
+  default = {
+    ManagedBy   = "Terraform"
     Environment = "Governance"
-    Project   = "AWS-Landing-Zone"
+    Project     = "AWS-Landing-Zone"
   }
 }

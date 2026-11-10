@@ -3,8 +3,8 @@ locals {
   common_tags = merge(
     var.policy_tags,
     {
-      Environment = var.environment
-      ManagedBy   = "Terraform"
+      Environment  = var.environment
+      ManagedBy    = "Terraform"
       Organization = var.organization_id
     }
   )

@@ -3,22 +3,49 @@ variable "common_tags" {
   type        = map(string)
 
   default = {
-    ManagedBy = "Terraform"
-    Environment="Networking"
-    Project   = "AWS-Landing-Zone"
+    ManagedBy   = "Terraform"
+    Environment = "Networking"
+    Project     = "AWS-Landing-Zone"
   }
 }
 
+variable "primary_region" {
+  description = "Primary AWS region for networking resources"
+  type        = string
+}
+
+variable "dns_archive_retention_days" {
+  description = "DNS query log archive retention in days"
+  type        = number
+}
 variable "enable_centralized_egress" {
   description = "Enable centralized egress and inspection"
   type        = bool
   default     = true
 }
 
+variable "availability_zones" {
+  description = "Availability Zones shared across the participating accounts"
+  type        = list(string)
+}
+
 variable "egress_vpc_cidr" {
   description = "Centralized egress VPC CIDR"
   type        = string
-  default     = "10.0.0.0/16"
+}
+
+variable "infrastructure_vpc_cidr" {
+  description = "Infrastructure VPC CIDR"
+  type        = string
+}
+
+variable "production_vpc_cidr" {
+  description = "Production VPC CIDR"
+  type        = string
+}
+variable "nonproduction_vpc_cidr" {
+  description = "NonProduction VPC CIDR"
+  type        = string
 }
 
 variable "availability_zone_ids" {
@@ -32,13 +59,11 @@ variable "firewall_log_retention_days" {
 }
 
 variable "firewall_allowed_tcp_ports" {
-  type    = list(number)
-  default = [80, 443]
+  type = list(number)
 }
 
 variable "firewall_allowed_udp_ports" {
-  type    = list(number)
-  default = [53]
+  type = list(number)
 }
 
 variable "firewall_home_net_cidrs" {
@@ -67,7 +92,6 @@ variable "dns_onpremises_resolver_ips" {
 variable "dns_private_domain" {
   description = "Corporate private DNS domain"
   type        = string
-  default     = "corp.example.com"
 }
 
 variable "dns_firewall_blocked_domains" {
@@ -96,11 +120,6 @@ variable "dns_log_retention_days" {
 
 variable "organization_arn" {
   description = "AWS Organization ARN"
-  type        = string
-}
-
-variable "logging_role_arn" {
-  description = "IAM role ARN for the Logging account"
   type        = string
 }
 

@@ -148,7 +148,7 @@ resource "aws_route53_resolver_rule" "corporate" {
     for_each = var.dns_onpremises_resolver_ips
 
     content {
-      ip = target_ip.value
+      ip   = target_ip.value
       port = 53
     }
   }

@@ -20,17 +20,11 @@ variable "dns_onpremises_resolver_ips" {
 variable "dns_private_domain" {
   description = "Private DNS domain forwarded to on-premises DNS"
   type        = string
-  default     = "corp.example.com"
 }
 
 variable "dns_firewall_blocked_domains" {
   description = "Domains blocked by DNS Firewall"
   type        = list(string)
-
-  default = [
-    "malware.example",
-    "phishing.example"
-  ]
 }
 
 variable "dns_firewall_allowed_domains" {

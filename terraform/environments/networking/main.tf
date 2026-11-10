@@ -8,7 +8,8 @@ module "networking" {
     aws.nonproduction  = aws.nonproduction
   }
 
-  organization_id = local.organization_id
+  dns_archive_retention_days = var.dns_archive_retention_days
+  organization_id            = local.organization_id
 
   infrastructure_account_id = var.infrastructure_account_id
   production_account_id     = var.production_account_id
@@ -29,15 +30,10 @@ module "networking" {
   firewall_home_net_cidrs = var.firewall_home_net_cidrs
 
   firewall_log_retention_days = var.firewall_log_retention_days
-  firewall_allowed_tcp_ports = var.firewall_allowed_tcp_ports
-  firewall_allowed_udp_ports = var.firewall_allowed_udp_ports
+  firewall_allowed_tcp_ports  = var.firewall_allowed_tcp_ports
+  firewall_allowed_udp_ports  = var.firewall_allowed_udp_ports
 
-  enable_flow_logs = var.enable_flow_logs
 
-  enable_s3_endpoint       = var.enable_s3_endpoint
-  enable_dynamodb_endpoint = var.enable_dynamodb_endpoint
-
-  
   enable_dns_security = var.enable_dns_security
 
   dns_resolver_subnet_ids = var.dns_resolver_subnet_ids

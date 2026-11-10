@@ -9,8 +9,8 @@ resource "aws_ec2_transit_gateway" "main" {
   default_route_table_association = "disable"
   default_route_table_propagation = "disable"
 
-  dns_support                     = "enable"
-  vpn_ecmp_support                = "enable"
+  dns_support      = "enable"
+  vpn_ecmp_support = "enable"
 
   tags = merge(
     local.common_tags,
@@ -32,7 +32,7 @@ resource "aws_ram_resource_share" "transit_gateway" {
 resource "aws_ram_resource_association" "transit_gateway" {
   provider = aws.infrastructure
 
-  resource_arn = aws_ec2_transit_gateway.main.arn
+  resource_arn       = aws_ec2_transit_gateway.main.arn
   resource_share_arn = aws_ram_resource_share.transit_gateway.arn
 }
 
@@ -94,7 +94,7 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "infrastructure" {
   subnet_ids = aws_subnet.infrastructure_private[*].id
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
-  vpc_id            = aws_vpc.infrastructure.id
+  vpc_id             = aws_vpc.infrastructure.id
 
   dns_support = "enable"
 
@@ -116,7 +116,7 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "production" {
   subnet_ids = aws_subnet.production_private[*].id
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
-  vpc_id            = aws_vpc.production.id
+  vpc_id             = aws_vpc.production.id
 
   dns_support = "enable"
 
@@ -134,7 +134,7 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "nonproduction" {
   subnet_ids = aws_subnet.nonproduction_private[*].id
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
-  vpc_id            = aws_vpc.nonproduction.id
+  vpc_id             = aws_vpc.nonproduction.id
 
   dns_support = "enable"
 

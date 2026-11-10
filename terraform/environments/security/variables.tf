@@ -41,7 +41,7 @@ variable "config_aggregator_role_arn" {
 }
 
 variable "environment" {
-  type    = string
+  type = string
 }
 
 variable "common_tags" {
