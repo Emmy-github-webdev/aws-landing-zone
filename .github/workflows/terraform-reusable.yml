@@ -130,7 +130,6 @@ jobs:
             -backend-config="encrypt=true" \
             -backend-config="region=us-east-1" \
             -backend-config="encrypt=true" \
-            -backend-config="kms_key_id=${{ vars.TF_STATE_KMS_KEY }}" \
             -backend-config="use_lockfile=true"
 
       - name: Terraform Validate
