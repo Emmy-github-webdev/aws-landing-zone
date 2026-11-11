@@ -3,6 +3,11 @@ name: Terraform Reusable Deployment
 
 on:
   workflow_call:
+    
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+        
     inputs:
       environment:
         required: true

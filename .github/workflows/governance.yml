@@ -54,3 +54,6 @@ jobs:
       terraform_version: "1.10.5"
       aws_region: "us-east-1"
       apply_enabled: true
+
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
