@@ -16,6 +16,21 @@ on:
         required: true
         type: string
 
+      action:
+        required: false
+        type: string
+        default: auto
+
+      terraform_version:
+        required: false
+        type: string
+        default: "1.10.5"
+
+      aws_region:
+        required: false
+        type: string
+        default: "us-east-1"
+
       apply_enabled:
         required: false
         type: boolean
@@ -30,9 +45,11 @@ concurrency:
   group: terraform-${{ inputs.environment }}
   cancel-in-progress: false
 
+
 jobs:
   terraform:
     name: Terraform ${{ inputs.environment }}
+
     runs-on: ubuntu-latest
 
     environment:
@@ -46,16 +63,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: us-east-1
-
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.10.5
+          terraform_version: ${{ inputs.terraform_version }}
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Terraform Format
         run: terraform fmt -check -recursive
@@ -65,7 +82,7 @@ jobs:
           terraform init -input=false \
             -backend-config="bucket=${{ vars.TF_STATE_BUCKET }}" \
             -backend-config="key=${{ inputs.state_key }}" \
-            -backend-config="region=us-east-1" \
+            -backend-config="region=${{ inputs.aws_region }}" \
             -backend-config="encrypt=true" \
             -backend-config="kms_key_id=${{ vars.TF_STATE_KMS_KEY }}" \
             -backend-config="use_lockfile=true"
@@ -73,28 +90,60 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      # Terraform operation
+      - name: Determine Terraform Action
+        id: action
+        shell: bash
+        env:
+          INPUT_ACTION: ${{ inputs.action }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+        run: |
+          if [[ "$INPUT_ACTION" != "auto" ]]; then
+            ACTION="$INPUT_ACTION"
+          elif [[ "$EVENT_NAME" == "push" && "$REF" == "refs/heads/main" ]]; then
+            ACTION="apply"
+          else
+            ACTION="plan"
+          fi
+
+          echo "action=$ACTION" >> "$GITHUB_OUTPUT"
+          echo "Selected Terraform action: $ACTION"
+
+      # Plan
       - name: Terraform Plan
-        id: plan
+        if: steps.action.outputs.action == 'plan' || steps.action.outputs.action == 'apply'
         run: |
           terraform plan \
             -input=false \
             -lock-timeout=5m \
             -out=tfplan
 
+      # Upload plan
       - name: Upload Terraform Plan
+        if: steps.action.outputs.action == 'plan' || steps.action.outputs.action == 'apply'
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan-${{ inputs.environment }}
           path: ${{ inputs.working_directory }}/tfplan
           retention-days: 1
 
+      # Apply
       - name: Terraform Apply
         if: >
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/main' &&
+          steps.action.outputs.action == 'apply' &&
           inputs.apply_enabled == true
         run: |
           terraform apply \
             -input=false \
             -lock-timeout=5m \
             tfplan
+
+      # Destroy
+      - name: Terraform Destroy
+        if: steps.action.outputs.action == 'destroy'
+        run: |
+          terraform destroy \
+            -input=false \
+            -auto-approve \
+            -lock-timeout=5m

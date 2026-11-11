@@ -1,25 +1,27 @@
 
-name: AWS Landing Zone - Networking
+name: AWS Networking Terraform
 
 on:
   pull_request:
     paths:
-      - 'modules/networking/**'
-      - 'environments/networking/**'
-      - '.github/workflows/networking.yml'
+      - "modules/networking/**"
+      - "environments/networking/**"
+      - ".github/workflows/networking.yml"
+      - ".github/workflows/terraform-reusable.yml"
 
   push:
     branches:
       - main
     paths:
-      - 'modules/networking/**'
-      - 'environments/networking/**'
-      - '.github/workflows/networking.yml'
+      - "modules/networking/**"
+      - "environments/networking/**"
+      - ".github/workflows/networking.yml"
+      - ".github/workflows/terraform-reusable.yml"
 
   workflow_dispatch:
     inputs:
       action:
-        description: Terraform operation
+        description: 'Terraform operation'
         required: true
         type: choice
         options:
@@ -29,85 +31,26 @@ on:
         default: plan
 
 permissions:
-  id-token: write
   contents: read
+  id-token: write
+  pull-requests: write
 
 concurrency:
   group: terraform-networking
   cancel-in-progress: false
 
-env:
-  TF_VERSION: '1.10.5'
-  AWS_REGION: 'eu-west-1'
-  TF_WORKING_DIR: 'environments/networking'
 
 jobs:
-  terraform:
+  deploy:
     name: Networking Terraform
-    runs-on: ubuntu-latest
 
-    environment:
-      name: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy' && 'networking-destroy' || github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply' && 'networking' || 'networking-plan' }}
+    uses: ./.github/workflows/terraform-reusable.yml
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_INFRASTRUCTURE_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Terraform Format
-        run: terraform fmt -check -recursive
-
-      - name: Terraform Init
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform init -input=false
-
-      - name: Terraform Validate
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform validate
-
-      - name: Validate DNS Security Configuration
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: |
-          terraform console -no-color <<EOF
-          var.enable_dns_security
-          EOF
-
-      - name: Terraform Plan
-        if: github.event_name != 'workflow_dispatch' || github.event.inputs.action == 'plan'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -input=false
-
-      - name: Create Apply Plan
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -input=false -out=tfplan
-
-      - name: Apply Infrastructure
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -input=false -auto-approve tfplan
-
-      - name: Create Destroy Plan
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform plan -destroy -input=false -out=destroy.tfplan
-
-      - name: Review Destroy Plan
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform show -no-color destroy.tfplan
-
-      - name: Destroy Infrastructure
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
-        working-directory: ${{ env.TF_WORKING_DIR }}
-        run: terraform apply -input=false -auto-approve destroy.tfplan
+    with:
+      environment: networking
+      working_directory: environments/networking
+      state_key: landing-zone/networking/terraform.tfstate
+      action: ${{ github.event.inputs.action || 'auto' }}
+      terraform_version: "1.10.5"
+      aws_region: "us-east-1"
+      apply_enabled: true

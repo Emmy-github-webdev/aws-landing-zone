@@ -8,7 +8,3 @@ data "terraform_remote_state" "organizations" {
     region = var.state_region
   }
 }
-
-locals {
-  organization_id = data.terraform_remote_state.organizations.outputs.organization_id
-}
