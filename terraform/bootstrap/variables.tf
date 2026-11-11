@@ -7,6 +7,7 @@ variable "aws_region" {
 variable "state_bucket_name" {
   description = "Globally unique Terraform state bucket name"
   type        = string
+  default     = "emmanuelogah-aws-lz-tfstate"
 }
 
 variable "state_bucket_force_destroy" {
