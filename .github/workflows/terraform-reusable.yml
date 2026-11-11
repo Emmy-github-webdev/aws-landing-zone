@@ -21,6 +21,16 @@ on:
         type: string
         default: auto
 
+      terraform_version:
+        required: false
+        type: string
+        default: "1.10.5"
+
+      aws_region:
+        required: false
+        type: string
+        default: "us-east-1"
+
       apply_enabled:
         required: false
         type: boolean
@@ -30,10 +40,6 @@ permissions:
   contents: read
   id-token: write
   pull-requests: write
-
-env:
-  TF_VERSION: "1.10.5"
-  AWS_REGION: "us-east-1"
 
 jobs:
   terraform:
@@ -54,7 +60,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ inputs.terraform_version }}
 
       - name: Check AWS role secret
         run: |
@@ -69,12 +75,12 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ inputs.aws_region }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ env.TF_VERSION }}
+          terraform_version: ${{ inputs.terraform_version }}
 
       - name: Terraform Format
         run: terraform fmt -check -recursive
