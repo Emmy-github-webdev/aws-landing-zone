@@ -1,10 +1,6 @@
 
 name: Terraform Reusable Deployment
 
-# workflow name
-name: Terraform Reusable Deployment
-
-# workflow inputs
 on:
   workflow_call:
     inputs:
@@ -40,23 +36,15 @@ on:
         type: boolean
         default: true
 
-# Permissions required for the workflow
 permissions:
   contents: read
   id-token: write
   pull-requests: write
 
-# Concurency settings to prevent multiple runs for the same environment
 concurrency:
   group: terraform-${{ inputs.environment }}
   cancel-in-progress: false
 
-
-jobs:
-  terraform:
-    name: Terraform ${{ inputs.environment }}
-
-# Jobs definition
 jobs:
   terraform:
     name: Terraform ${{ inputs.environment }}
@@ -135,8 +123,6 @@ jobs:
       # Plan
       - name: Terraform Plan
         if: steps.action.outputs.action == 'plan' || steps.action.outputs.action == 'apply'
-      - name: Terraform Plan
-        id: plan
         run: |
           terraform plan \
             -input=false \
@@ -146,7 +132,6 @@ jobs:
       # Upload plan
       - name: Upload Terraform Plan
         if: steps.action.outputs.action == 'plan' || steps.action.outputs.action == 'apply'
-      - name: Upload Terraform Plan
         uses: actions/upload-artifact@v4
         with:
           name: terraform-plan-${{ inputs.environment }}
@@ -157,10 +142,6 @@ jobs:
       - name: Terraform Apply
         if: >
           steps.action.outputs.action == 'apply' &&
-      - name: Terraform Apply
-        if: >
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/main' &&
           inputs.apply_enabled == true
         run: |
           terraform apply \
