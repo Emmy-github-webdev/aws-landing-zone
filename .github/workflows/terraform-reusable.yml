@@ -21,16 +21,6 @@ on:
         type: string
         default: auto
 
-      terraform_version:
-        required: false
-        type: string
-        default: "1.10.5"
-
-      aws_region:
-        required: false
-        type: string
-        default: "us-east-1"
-
       apply_enabled:
         required: false
         type: boolean
@@ -40,6 +30,10 @@ permissions:
   contents: read
   id-token: write
   pull-requests: write
+
+env:
+  TF_VERSION: "1.10.5"
+  AWS_REGION: "us-east-1"
 
 jobs:
   terraform:
@@ -60,23 +54,27 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ inputs.terraform_version }}
+          terraform_version: ${{ env.TF_VERSION }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ inputs.aws_region }}
+      - name: Check AWS role secret
+        run: |
+          if [ -z "${{ secrets.AWS_ROLE_ARN }}" ]; then
+            echo "AWS_ROLE_ARN secret is missing"
+            exit 1
+          fi
+
+          echo "AWS role secret is present"
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.10.5
+          terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Format
         run: terraform fmt -check -recursive
