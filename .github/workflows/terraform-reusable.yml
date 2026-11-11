@@ -41,10 +41,6 @@ permissions:
   id-token: write
   pull-requests: write
 
-concurrency:
-  group: terraform-${{ inputs.environment }}
-  cancel-in-progress: false
-
 jobs:
   terraform:
     name: Terraform ${{ inputs.environment }}
