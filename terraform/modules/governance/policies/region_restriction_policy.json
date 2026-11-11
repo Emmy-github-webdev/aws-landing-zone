@@ -1,0 +1,28 @@
+
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyUnapprovedRegions",
+      "Effect": "Deny",
+      "NotAction": [
+        "account:*",
+        "acm:*",
+        "aws-portal:*",
+        "budgets:*",
+        "ce:*",
+        "cloudfront:*",
+        "iam:*",
+        "organizations:*",
+        "route53:*",
+        "support:*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": ${approved_regions}
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+
+name: AWS Security Terraform
+
+on:
+  pull_request:
+    paths:
+      - "modules/security/**"
+      - "environments/security/**"
+      - ".github/workflows/security.yml"
+      - ".github/workflows/terraform-reusable.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "modules/security/**"
+      - "environments/security/**"
+      - ".github/workflows/security.yml"
+      - ".github/workflows/terraform-reusable.yml"
+
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform operation'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+        default: plan
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: terraform-security
+  cancel-in-progress: false
+
+
+jobs:
+  deploy:
+    name: Security Terraform
+
+    uses: ./.github/workflows/terraform-reusable.yml
+
+    with:
+      environment: security
+      working_directory: environments/security
+      state_key: landing-zone/security/terraform.tfstate
+      action: ${{ github.event.inputs.action || 'auto' }}
+      terraform_version: "1.10.5"
+      aws_region: "us-east-1"
+      apply_enabled: true
