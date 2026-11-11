@@ -17,7 +17,7 @@ resource "aws_vpc" "egress" {
   )
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
   }
 }
 

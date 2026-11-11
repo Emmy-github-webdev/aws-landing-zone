@@ -1,0 +1,1 @@
+state_bucket_name = emmanuelogah-aws-lz-tfstate
