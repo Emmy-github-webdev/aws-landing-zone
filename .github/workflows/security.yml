@@ -48,7 +48,7 @@ jobs:
 
     with:
       environment: security
-      working_directory: environments/security
+      working_directory: terraform/environments/security
       state_key: landing-zone/security/terraform.tfstate
       action: ${{ github.event.inputs.action || 'auto' }}
       terraform_version: "1.10.5"

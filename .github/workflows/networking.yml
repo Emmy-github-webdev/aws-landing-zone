@@ -48,7 +48,7 @@ jobs:
 
     with:
       environment: networking
-      working_directory: environments/networking
+      working_directory: terraform/environments/networking
       state_key: landing-zone/networking/terraform.tfstate
       action: ${{ github.event.inputs.action || 'auto' }}
       terraform_version: "1.10.5"
