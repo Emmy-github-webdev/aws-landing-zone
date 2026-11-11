@@ -3,7 +3,7 @@ name: Terraform Reusable Deployment
 
 on:
   workflow_call:
-    
+
     secrets:
       AWS_ROLE_ARN:
         required: true
@@ -75,6 +75,14 @@ jobs:
           fi
 
           echo "AWS role secret is present"
+
+      - name: Debug GitHub OIDC context
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Ref: $GITHUB_REF"
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Workflow: $GITHUB_WORKFLOW"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
