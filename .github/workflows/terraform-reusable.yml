@@ -85,10 +85,15 @@ jobs:
           echo "Workflow: $GITHUB_WORKFLOW"
 
       - name: Configure AWS credentials
+        if: github.event.name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: ${{ inputs.aws_region }}
+
+      - name: Debug GitHub Environment
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
