@@ -85,7 +85,6 @@ jobs:
           echo "Workflow: $GITHUB_WORKFLOW"
 
       - name: Configure AWS credentials
-        if: github.event.name != 'pull_request'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
