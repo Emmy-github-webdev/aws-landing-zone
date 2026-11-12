@@ -1,3 +1,12 @@
+import {
+  to = module.security_primary.aws_guardduty_organization_admin_account.security[0]
+  id = var.security_account_id
+}
+
+import {
+  to = module.security_primary.aws_securityhub_organization_admin_account.security[0]
+  id = var.security_account_id
+}
 
 # Primary region security deployment
 
