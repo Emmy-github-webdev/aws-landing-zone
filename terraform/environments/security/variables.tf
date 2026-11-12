@@ -4,6 +4,16 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "security_role_arn" {
+  description = "Security role ARN"
+  type        = string
+}
+
+variable "logging_role_arn" {
+  description = "Logging role ARN"
+  type        = string
+}
+
 variable "organization_id" {
   type        = string
   description = "AWS Organization ID"
