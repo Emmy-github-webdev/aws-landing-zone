@@ -1,4 +1,3 @@
-
 locals {
   common_tags = merge(
     var.policy_tags,

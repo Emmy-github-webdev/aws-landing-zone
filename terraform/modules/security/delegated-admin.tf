@@ -14,3 +14,12 @@ resource "aws_securityhub_organization_admin_account" "security" {
 
   admin_account_id = var.security_account_id
 }
+
+resource "aws_organizations_delegated_administrator" "access_analyzer" {
+  count = var.enable_access_analyzer ? 1 : 0
+
+  provider = aws.management
+
+  account_id        = var.security_account_id
+  service_principal = "access-analyzer.amazonaws.com"
+}
