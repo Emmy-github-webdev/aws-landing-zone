@@ -4,6 +4,8 @@ security_account_id   = "878250098179"
 logging_account_id    = "787461921629"
 primary_region        = "us-east-1"
 secondary_region      = "us-west-2"
+security_role_arn     = "arn:aws:iam::878250098179:role/OrganizationAccountAccessRole"
+logging_role_arn      = "arn:aws:iam::787461921629:role/OrganizationAccountAccessRole"
 approved_regions = [
   "us-east-1",
   "us-west-2"
