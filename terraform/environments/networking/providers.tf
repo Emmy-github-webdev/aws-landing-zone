@@ -6,6 +6,12 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = ">= 5.80, < 7.0"
+
+      configuration_aliases = [
+        aws.infrastructure,
+        aws.production,
+        aws.nonproduction
+      ]
     }
   }
 }

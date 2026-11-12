@@ -11,7 +11,7 @@ resource "aws_organizations_organizational_unit" "infrastructure" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
 
     precondition {
       condition = local.organization_valid
@@ -34,7 +34,7 @@ resource "aws_organizations_organizational_unit" "workloads" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
 
     precondition {
       condition = local.organization_valid
@@ -56,7 +56,7 @@ resource "aws_organizations_organizational_unit" "production" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
 
     precondition {
       condition = local.organization_valid
@@ -77,7 +77,7 @@ resource "aws_organizations_organizational_unit" "nonproduction" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
 
     precondition {
       condition = local.organization_valid
@@ -100,7 +100,7 @@ resource "aws_controltower_baseline" "infrastructure" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
   }
 }
 
@@ -117,7 +117,7 @@ resource "aws_controltower_baseline" "workloads" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
   }
 }
 
@@ -138,7 +138,7 @@ resource "aws_controltower_baseline" "production" {
   ]
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
   }
 }
 
@@ -159,6 +159,6 @@ resource "aws_controltower_baseline" "nonproduction" {
   ]
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
   }
 }

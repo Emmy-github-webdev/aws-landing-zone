@@ -17,9 +17,9 @@ resource "aws_networkfirewall_firewall" "egress" {
     }
   }
 
-  delete_protection                 = true
-  firewall_policy_change_protection = true
-  subnet_change_protection          = true
+  delete_protection                 = false # Change to True for production. This is for testing purposes
+  firewall_policy_change_protection = false # Change to True for production. This is for testing purposes
+  subnet_change_protection          = false # Change to True for production. This is for testing purposes
 
   tags = merge(
     local.common_tags,

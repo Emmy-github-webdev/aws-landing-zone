@@ -3,6 +3,11 @@ name: Terraform Reusable Deployment
 
 on:
   workflow_call:
+
+    secrets:
+      AWS_ROLE_ARN:
+        required: true
+        
     inputs:
       environment:
         required: true
@@ -41,10 +46,6 @@ permissions:
   id-token: write
   pull-requests: write
 
-concurrency:
-  group: terraform-${{ inputs.environment }}
-  cancel-in-progress: false
-
 jobs:
   terraform:
     name: Terraform ${{ inputs.environment }}
@@ -66,21 +67,56 @@ jobs:
         with:
           terraform_version: ${{ inputs.terraform_version }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ inputs.aws_region }}
+      - name: Check AWS role secret
+        run: |
+          if [ -z "${{ secrets.AWS_ROLE_ARN }}" ]; then
+            echo "AWS_ROLE_ARN secret is missing"
+            exit 1
+          fi
+
+          echo "AWS role secret is present"
+
+      - name: Debug GitHub OIDC context
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Ref: $GITHUB_REF"
+          echo "Event: $GITHUB_EVENT_NAME"
+          echo "Actor: $GITHUB_ACTOR"
+          echo "Workflow: $GITHUB_WORKFLOW"
+
+      # Enable for troubleshooting OIDC token issues
+      # - name: Inspect OIDC claims 
+      #   shell: bash
+      #   run: |
+      #     RESPONSE=$(curl -sS \
+      #       -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+      #       "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sts.amazonaws.com")
+
+      #     JWT=$(echo "$RESPONSE" | jq -r '.value')
+
+      #     if [ -z "$JWT" ] || [ "$JWT" = "null" ]; then
+      #       echo "Failed to retrieve OIDC token"
+      #       exit 1
+      #     fi
+
+      #     PAYLOAD=$(echo "$JWT" | cut -d '.' -f2 | tr '_-' '/+' | base64 -d 2>/dev/null)
+
+      #     echo "$PAYLOAD" | jq '{iss, aud, sub}'
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ inputs.aws_region }}
+
+      - name: Debug GitHub Environment
+        run: |
+          echo "Environment: ${{ inputs.environment }}"
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.10.5
+          terraform_version: ${{ inputs.terraform_version }}
 
       - name: Terraform Format
         run: terraform fmt -check -recursive
@@ -94,7 +130,6 @@ jobs:
             -backend-config="encrypt=true" \
             -backend-config="region=us-east-1" \
             -backend-config="encrypt=true" \
-            -backend-config="kms_key_id=${{ vars.TF_STATE_KMS_KEY }}" \
             -backend-config="use_lockfile=true"
 
       - name: Terraform Validate

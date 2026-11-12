@@ -124,15 +124,6 @@ locals {
   }
 }
 
-
-locals {
-  firewall_endpoint_ids = var.enable_centralized_egress ? {
-    for sync_state in aws_networkfirewall_firewall.egress[0].firewall_status[0].sync_states :
-    sync_state.availability_zone_id => sync_state.attachment[0].endpoint_id
-  } : {}
-}
-
-
 locals {
   az_name_to_id = zipmap(
     data.aws_availability_zones.available.names,

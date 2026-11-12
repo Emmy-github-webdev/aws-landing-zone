@@ -7,7 +7,7 @@ resource "aws_s3_bucket" "audit_logs" {
   bucket = "aws-landing-zone-audit-${var.logging_account_id}"
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false # Change to True for production. This is for testing purposes
   }
 
   tags = local.common_tags

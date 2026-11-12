@@ -99,16 +99,6 @@ output "nonproduction_ou_id" {
   value       = aws_organizations_organizational_unit.nonproduction.id
 }
 
-output "security_ou_id" {
-  description = "Existing Security OU ID"
-  value       = data.aws_organizations_organizational_unit.security.id
-}
-
-output "sandbox_ou_id" {
-  description = "Existing Sandbox OU ID"
-  value       = data.aws_organizations_organizational_unit.sandbox.id
-}
-
 output "infrastructure_baseline_arn" {
   value = aws_controltower_baseline.infrastructure.arn
 }

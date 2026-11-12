@@ -54,8 +54,7 @@ variable "availability_zone_ids" {
 }
 
 variable "firewall_log_retention_days" {
-  type    = number
-  default = 90
+  type = number
 }
 
 variable "firewall_allowed_tcp_ports" {
