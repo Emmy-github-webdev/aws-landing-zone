@@ -1,7 +1,7 @@
 variable "aws_region" {
   description = "AWS Regions"
-  type = string
-  default = "us-east-1"
+  type        = string
+  default     = "us-east-1"
 }
 
 variable "expected_organization_id" {
