@@ -42,6 +42,7 @@ resource "aws_organizations_organizational_unit" "workloads" {
       error_message = "Unexpected AWS Organization. Cannot create Workloads OU."
     }
   }
+
 }
 
 # Child OUs under Workloads OU: Production and NonProduction
@@ -119,6 +120,8 @@ resource "aws_controltower_baseline" "workloads" {
   lifecycle {
     prevent_destroy = false # Change to True for production. This is for testing purposes
   }
+
+  depends_on = [aws_controltower_baseline.infrastructure]
 }
 
 # Add Baseline resources to the Production
@@ -155,7 +158,7 @@ resource "aws_controltower_baseline" "nonproduction" {
   }
 
   depends_on = [
-    aws_controltower_baseline.workloads
+    aws_controltower_baseline.production
   ]
 
   lifecycle {
