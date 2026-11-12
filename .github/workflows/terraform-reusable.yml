@@ -128,8 +128,6 @@ jobs:
             -backend-config="key=${{ inputs.state_key }}" \
             -backend-config="region=${{ inputs.aws_region }}" \
             -backend-config="encrypt=true" \
-            -backend-config="region=us-east-1" \
-            -backend-config="encrypt=true" \
             -backend-config="use_lockfile=true"
 
       - name: Terraform Validate
@@ -192,4 +190,3 @@ jobs:
             -input=false \
             -auto-approve \
             -lock-timeout=5m
-            tfplan
