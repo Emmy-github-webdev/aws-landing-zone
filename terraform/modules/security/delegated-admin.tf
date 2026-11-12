@@ -1,3 +1,12 @@
+import {
+  to = aws_guardduty_organization_admin_account.security[0]
+  id = var.security_account_id
+}
+
+import {
+  to = aws_securityhub_organization_admin_account.security[0]
+  id = var.security_account_id
+}
 
 resource "aws_guardduty_organization_admin_account" "security" {
   provider = aws.management
