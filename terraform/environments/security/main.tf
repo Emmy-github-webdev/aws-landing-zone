@@ -1,10 +1,10 @@
 import {
-  to = module.security_primary.aws_guardduty_organization_admin_account.security[0]
+  to = aws_guardduty_organization_admin_account.security
   id = var.security_account_id
 }
 
 import {
-  to = module.security_primary.aws_securityhub_organization_admin_account.security[0]
+  to = aws_securityhub_organization_admin_account.security
   id = var.security_account_id
 }
 
@@ -39,6 +39,12 @@ module "security_primary" {
 
   environment = var.environment
   policy_tags = var.common_tags
+
+  depends_on = [
+    aws_guardduty_organization_admin_account.security,
+    aws_securityhub_organization_admin_account.security,
+    aws_organizations_delegated_administrator.access_analyzer
+  ]
 }
 
 # Secondary region security deployment
@@ -72,4 +78,11 @@ module "security_secondary" {
 
   environment = var.environment
   policy_tags = var.common_tags
+
+  depends_on = [
+    aws_guardduty_organization_admin_account.security,
+    aws_securityhub_organization_admin_account.security,
+    aws_organizations_delegated_administrator.access_analyzer
+  ]
+
 }

@@ -14,10 +14,6 @@ resource "aws_guardduty_organization_configuration" "security" {
   detector_id = aws_guardduty_detector.security[0].id
 
   auto_enable_organization_members = "ALL"
-
-  depends_on = [
-    aws_guardduty_organization_admin_account.security
-  ]
 }
 
 resource "aws_guardduty_organization_configuration_feature" "security" {

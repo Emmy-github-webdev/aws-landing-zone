@@ -8,9 +8,6 @@ resource "aws_securityhub_account" "security" {
 
   control_finding_generator = "SECURITY_CONTROL"
 
-  depends_on = [
-    aws_securityhub_organization_admin_account.security
-  ]
 }
 
 resource "aws_securityhub_organization_configuration" "security" {

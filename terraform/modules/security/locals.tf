@@ -8,7 +8,7 @@ locals {
     }
   )
 
-  is_primary_region = data.aws_region.current.name == var.primary_region
+  is_primary_region = data.aws_region.current.region == var.primary_region
 
   security_services = {
     guardduty       = var.enable_guardduty
