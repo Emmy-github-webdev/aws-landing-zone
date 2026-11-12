@@ -8,9 +8,9 @@ terraform {
 
       configuration_aliases = [
         aws.management,
-        aws.logging
+        aws.logging,
+        aws.secondary
       ]
-
     }
   }
 }
@@ -32,7 +32,6 @@ provider "aws" {
 provider "aws" {
   alias  = "management"
   region = var.primary_region
-
 
   default_tags {
     tags = var.common_tags
