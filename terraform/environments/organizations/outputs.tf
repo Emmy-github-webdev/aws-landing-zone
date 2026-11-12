@@ -26,8 +26,16 @@ output "workloads_ou_id" {
   value = module.organizations.workloads_ou_id
 }
 
+output "security_ou_id" {
+  value = module.organizations.security_ou_id
+}
+
 output "production_ou_id" {
   value = module.organizations.production_ou_id
+}
+
+output "sandbox_ou_id" {
+  value = module.organizations.sandbox_ou_id
 }
 
 output "nonproduction_ou_id" {
