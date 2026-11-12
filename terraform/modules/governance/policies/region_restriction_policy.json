@@ -1,4 +1,3 @@
-
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -20,7 +19,10 @@
       "Resource": "*",
       "Condition": {
         "StringNotEquals": {
-          "aws:RequestedRegion": ${approved_regions}
+          "aws:RequestedRegion": [
+            "us-east-1",
+            "us-west-2"
+          ]
         }
       }
     }
