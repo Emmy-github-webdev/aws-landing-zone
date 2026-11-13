@@ -4,7 +4,7 @@ import {
 }
 
 import {
-  to = aws_securityhub_organization_admin_account.security_secondary
+  to = aws_guardduty_organization_admin_account.security_secondary
   id = var.security_account_id
 }
 
