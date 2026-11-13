@@ -134,6 +134,15 @@ jobs:
         run: |
           terraform state list | grep -E 'guardduty|securityhub_organization_admin' || true
 
+      - name: Inspect GuardDuty admin state
+        run: |
+          terraform state show aws_guardduty_organization_admin_account.security
+
+      - name: Inspect GuardDuty detector
+        run: |
+          terraform state show module.security_primary.aws_guardduty_detector.security[0]
+
+
       - name: Terraform Validate
         run: terraform validate
 
