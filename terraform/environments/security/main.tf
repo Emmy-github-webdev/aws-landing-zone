@@ -46,7 +46,6 @@ module "security_primary" {
   policy_tags = var.common_tags
 
   depends_on = [
-    aws_guardduty_organization_admin_account.security,
     aws_securityhub_organization_admin_account.security,
     aws_iam_service_linked_role.access_analyzer,
     aws_organizations_delegated_administrator.access_analyzer,
@@ -87,7 +86,6 @@ module "security_secondary" {
   policy_tags = var.common_tags
 
   depends_on = [
-    aws_guardduty_organization_admin_account.security,
     aws_securityhub_organization_admin_account.security,
     aws_iam_service_linked_role.access_analyzer,
     aws_organizations_delegated_administrator.access_analyzer,
