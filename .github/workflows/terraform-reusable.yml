@@ -142,10 +142,10 @@ jobs:
         run: |
           terraform state show module.security_primary.aws_guardduty_detector.security[0]
 
-      # - name: Remove stale GuardDuty admin state
-      #   run: |
-      #     terraform state rm \
-      #       aws_guardduty_organization_admin_account.security
+      - name: Remove stale GuardDuty admin state
+        run: |
+          terraform state rm \
+            aws_guardduty_organization_admin_account.security
 
       - name: Terraform Validate
         run: terraform validate
