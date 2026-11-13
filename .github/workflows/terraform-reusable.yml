@@ -130,6 +130,10 @@ jobs:
             -backend-config="encrypt=true" \
             -backend-config="use_lockfile=true"
 
+      - name: Inspect GuardDuty Terraform state
+        run: |
+          terraform state list | grep -E 'guardduty|securityhub_organization_admin' || true
+
       - name: Terraform Validate
         run: terraform validate
 
