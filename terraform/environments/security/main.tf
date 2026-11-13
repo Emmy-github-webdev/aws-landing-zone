@@ -49,7 +49,8 @@ module "security_primary" {
     aws_guardduty_organization_admin_account.security,
     aws_securityhub_organization_admin_account.security,
     aws_iam_service_linked_role.access_analyzer,
-    aws_organizations_delegated_administrator.access_analyzer
+    aws_organizations_delegated_administrator.access_analyzer,
+    aws_guardduty_organization_admin_account.security_primary
   ]
 }
 
@@ -89,7 +90,8 @@ module "security_secondary" {
     aws_guardduty_organization_admin_account.security,
     aws_securityhub_organization_admin_account.security,
     aws_iam_service_linked_role.access_analyzer,
-    aws_organizations_delegated_administrator.access_analyzer
+    aws_organizations_delegated_administrator.access_analyzer,
+    aws_guardduty_organization_admin_account.security_secondary
   ]
 
 }
