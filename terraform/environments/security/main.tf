@@ -1,17 +1,22 @@
-import {
-  to = aws_guardduty_organization_admin_account.security
-  id = var.security_account_id
-}
+# import {
+#   to = aws_guardduty_organization_admin_account.security_primary
+#   id = var.security_account_id
+# }
 
-import {
-  to = aws_securityhub_organization_admin_account.security
-  id = var.security_account_id
-}
+# import {
+#   to = aws_guardduty_organization_admin_account.security_secondary
+#   id = var.security_account_id
+# }
 
-import {
-  to = module.security_primary.aws_securityhub_account.security[0]
-  id = var.security_account_id
-}
+# import {
+#   to = aws_securityhub_organization_admin_account.security_primary
+#   id = var.security_account_id
+# }
+
+# import {
+#   to = aws_securityhub_organization_admin_account.security_secondary
+#   id = var.security_account_id
+# }
 
 # Primary region security deployment
 
@@ -46,8 +51,7 @@ module "security_primary" {
   policy_tags = var.common_tags
 
   depends_on = [
-    aws_guardduty_organization_admin_account.security,
-    aws_securityhub_organization_admin_account.security,
+    aws_securityhub_organization_admin_account.security_primary,
     aws_iam_service_linked_role.access_analyzer,
     aws_organizations_delegated_administrator.access_analyzer,
     aws_guardduty_organization_admin_account.security_primary
@@ -87,8 +91,7 @@ module "security_secondary" {
   policy_tags = var.common_tags
 
   depends_on = [
-    aws_guardduty_organization_admin_account.security,
-    aws_securityhub_organization_admin_account.security,
+    aws_securityhub_organization_admin_account.security_secondary,
     aws_iam_service_linked_role.access_analyzer,
     aws_organizations_delegated_administrator.access_analyzer,
     aws_guardduty_organization_admin_account.security_secondary

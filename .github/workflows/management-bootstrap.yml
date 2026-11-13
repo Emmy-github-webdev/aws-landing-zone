@@ -1,0 +1,57 @@
+
+name: AWS Management Bootstrap Terraform
+
+on:
+  pull_request:
+    paths:
+      - "environments/management-bootstrap/**"
+      - ".github/workflows/management-bootstrap.yml"
+      - ".github/workflows/terraform-reusable.yml"
+
+  push:
+    branches:
+      - main
+    paths:
+      - "environments/management-bootstrap/**"
+      - ".github/workflows/management-bootstrap.yml"
+      - ".github/workflows/terraform-reusable.yml"
+
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform operation'
+        required: true
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+        default: plan
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+
+concurrency:
+  group: terraform-management-bootstrap
+  cancel-in-progress: false
+
+
+jobs:
+  deploy:
+    name: Organizations Terraform
+
+    uses: ./.github/workflows/terraform-reusable.yml
+
+    with:
+      environment: management-bootstrap
+      working_directory: terraform/environments/management-bootstrap
+      state_key: landing-zone/management-bootstrap/terraform.tfstate
+      action: ${{ github.event.inputs.action || 'auto' }}
+      terraform_version: "1.10.5"
+      aws_region: "us-east-1"
+      apply_enabled: true
+
+    secrets:
+      AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
