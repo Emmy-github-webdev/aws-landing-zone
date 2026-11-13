@@ -72,34 +72,34 @@
 # GuardDuty delegated administrator
 # ============================================================
 
-# Enable trusted access
-resource "aws_organizations_aws_service_access" "guardduty" {
-  provider = aws.management
+# # Enable trusted access
+# resource "aws_organizations_aws_service_access" "guardduty" {
+#   provider = aws.management
 
-  service_principal = "guardduty.amazonaws.com"
-}
+#   service_principal = "guardduty.amazonaws.com"
+# }
 
-# Primary region
-resource "aws_guardduty_organization_admin_account" "security_primary" {
-  provider = aws.management
+# # Primary region
+# resource "aws_guardduty_organization_admin_account" "security_primary" {
+#   provider = aws.management
 
-  admin_account_id = var.security_account_id
+#   admin_account_id = var.security_account_id
 
-  depends_on = [
-    aws_organizations_aws_service_access.guardduty
-  ]
-}
+#   depends_on = [
+#     aws_organizations_aws_service_access.guardduty
+#   ]
+# }
 
-# Secondary region
-resource "aws_guardduty_organization_admin_account" "security_secondary" {
-  provider = aws.management_secondary
+# # Secondary region
+# resource "aws_guardduty_organization_admin_account" "security_secondary" {
+#   provider = aws.management_secondary
 
-  admin_account_id = var.security_account_id
+#   admin_account_id = var.security_account_id
 
-  depends_on = [
-    aws_organizations_aws_service_access.guardduty
-  ]
-}
+#   depends_on = [
+#     aws_organizations_aws_service_access.guardduty
+#   ]
+# }
 
 
 # ============================================================
