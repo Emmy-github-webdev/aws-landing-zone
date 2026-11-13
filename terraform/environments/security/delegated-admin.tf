@@ -22,7 +22,7 @@ resource "aws_guardduty_organization_admin_account" "security_secondary" {
   provider = aws.management_secondary
 
   admin_account_id = var.security_account_id
-    depends_on = [
+  depends_on = [
     aws_organizations_aws_service_access.guardduty
   ]
 }
