@@ -1,22 +1,22 @@
-import {
-  to = aws_guardduty_organization_admin_account.security_primary
-  id = var.security_account_id
-}
+# import {
+#   to = aws_guardduty_organization_admin_account.security_primary
+#   id = var.security_account_id
+# }
 
-import {
-  to = aws_guardduty_organization_admin_account.security_secondary
-  id = var.security_account_id
-}
+# import {
+#   to = aws_guardduty_organization_admin_account.security_secondary
+#   id = var.security_account_id
+# }
 
-import {
-  to = aws_securityhub_organization_admin_account.security_primary
-  id = var.security_account_id
-}
+# import {
+#   to = aws_securityhub_organization_admin_account.security_primary
+#   id = var.security_account_id
+# }
 
-import {
-  to = aws_securityhub_organization_admin_account.security_secondary
-  id = var.security_account_id
-}
+# import {
+#   to = aws_securityhub_organization_admin_account.security_secondary
+#   id = var.security_account_id
+# }
 
 # Primary region security deployment
 
