@@ -28,10 +28,20 @@ provider "aws" {
   }
 }
 
-# Organizations management account
+# Organizations management account - Primary region
 provider "aws" {
   alias  = "management"
   region = var.primary_region
+
+  default_tags {
+    tags = var.common_tags
+  }
+}
+
+# Organizations management account - Secondary region
+provider "aws" {
+  alias  = "management_secondary"
+  region = var.secondary_region
 
   default_tags {
     tags = var.common_tags

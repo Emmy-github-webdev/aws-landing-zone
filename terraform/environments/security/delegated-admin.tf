@@ -1,14 +1,30 @@
 
 # GuardDuty delegated administrator
-resource "aws_guardduty_organization_admin_account" "security" {
+# GuardDuty - primary region
+resource "aws_guardduty_organization_admin_account" "security_primary" {
   provider = aws.management
 
   admin_account_id = var.security_account_id
 }
 
+# GuardDuty - secondary region
+resource "aws_guardduty_organization_admin_account" "security_secondary" {
+  provider = aws.management_secondary
+
+  admin_account_id = var.security_account_id
+}
+
 # Security Hub delegated administrator
-resource "aws_securityhub_organization_admin_account" "security" {
+# Security Hub - primary region
+resource "aws_securityhub_organization_admin_account" "security_primary" {
   provider = aws.management
+
+  admin_account_id = var.security_account_id
+}
+
+# Security Hub - secondary region
+resource "aws_securityhub_organization_admin_account" "security_secondary" {
+  provider = aws.management_secondary
 
   admin_account_id = var.security_account_id
 }
@@ -29,5 +45,40 @@ resource "aws_organizations_delegated_administrator" "access_analyzer" {
 
   depends_on = [
     aws_organizations_aws_service_access.access_analyzer
+  ]
+}
+
+resource "aws_iam_service_linked_role" "access_analyzer" {
+  provider = aws.management
+
+  aws_service_name = "access-analyzer.amazonaws.com"
+}
+
+# Enable trusted access for GuardDuty
+resource "aws_organizations_aws_service_access" "guardduty" {
+  provider = aws.management
+
+  service_principal = "guardduty.amazonaws.com"
+}
+
+# GuardDuty delegated administrator - primary region
+resource "aws_guardduty_organization_admin_account" "security_primary" {
+  provider = aws.management
+
+  admin_account_id = var.security_account_id
+
+  depends_on = [
+    aws_organizations_aws_service_access.guardduty
+  ]
+}
+
+# GuardDuty delegated administrator - secondary region
+resource "aws_guardduty_organization_admin_account" "security_secondary" {
+  provider = aws.management_secondary
+
+  admin_account_id = var.security_account_id
+
+  depends_on = [
+    aws_organizations_aws_service_access.guardduty
   ]
 }

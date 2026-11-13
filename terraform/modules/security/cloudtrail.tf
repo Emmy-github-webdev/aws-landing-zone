@@ -22,6 +22,7 @@ resource "aws_cloudtrail" "organization" {
 
 
 
+
 data "aws_iam_policy_document" "audit_logs" {
   provider = aws.logging
 
@@ -90,6 +91,7 @@ data "aws_iam_policy_document" "audit_logs" {
     }
   }
 }
+
 
 # Cloudtrail bucket policy
 resource "aws_s3_bucket_policy" "audit_logs" {
