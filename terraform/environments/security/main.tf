@@ -1,15 +1,20 @@
 import {
-  to = aws_guardduty_organization_admin_account.security
+  to = aws_guardduty_organization_admin_account.security_primary
   id = var.security_account_id
 }
 
 import {
-  to = aws_securityhub_organization_admin_account.security
+  to = aws_securityhub_organization_admin_account.security_secondary
   id = var.security_account_id
 }
 
 import {
-  to = module.security_primary.aws_securityhub_account.security[0]
+  to = aws_securityhub_organization_admin_account.security_primary
+  id = var.security_account_id
+}
+
+import {
+  to = aws_securityhub_organization_admin_account.security_secondary
   id = var.security_account_id
 }
 
