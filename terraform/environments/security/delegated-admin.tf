@@ -105,6 +105,11 @@ resource "aws_guardduty_organization_admin_account" "security_secondary" {
 # ============================================================
 # Security Hub delegated administrator
 # ============================================================
+resource "aws_guardduty_organization_admin_account" "security" {
+  provider = aws.management
+
+  admin_account_id = var.security_account_id
+}
 
 # Primary region
 resource "aws_securityhub_organization_admin_account" "security_primary" {
