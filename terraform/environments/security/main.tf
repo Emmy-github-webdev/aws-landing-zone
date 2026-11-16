@@ -25,7 +25,7 @@ import {
 
 import {
   to = aws_organizations_delegated_administrator.config
-  id = "var.security_account_id/config.amazonaws.com"
+  id = "${var.security_account_id}/config.amazonaws.com"
 }
 
 # Primary region security deployment

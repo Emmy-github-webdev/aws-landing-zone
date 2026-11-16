@@ -135,14 +135,14 @@ jobs:
         run: terraform validate
 
       # Troubleshoot
-      - name: Check Terraform state
-        run: terraform state list | grep 'aws_organizations'
+      # - name: Check Terraform state
+      #   run: terraform state list | grep 'aws_organizations'
 
-      - name: Remove Primary config duplicate
-        run: terraform state rm module.security_primary.aws_organizations_aws_service_access.config
+      # - name: Remove Primary config duplicate
+      #   run: terraform state rm module.security_primary.aws_organizations_aws_service_access.config
 
-      - name: Remove Secondary config duplicate
-        run: terraform state rm module.security_secondary.aws_organizations_aws_service_access.config
+      # - name: Remove Secondary config duplicate
+      #   run: terraform state rm module.security_secondary.aws_organizations_aws_service_access.config
 
       # Terraform operation
       - name: Determine Terraform Action
