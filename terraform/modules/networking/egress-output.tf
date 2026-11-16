@@ -4,7 +4,7 @@ output "egress_vpc_id" {
 }
 
 output "egress_firewall_arn" {
-  value = ws_networkfirewall_firewall.egress.arn
+  value = aws_networkfirewall_firewall.egress.arn
 }
 
 output "ress_nat_public_ips" {
