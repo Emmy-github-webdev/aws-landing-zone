@@ -28,3 +28,6 @@ firewall_allowed_tcp_ports = [
 firewall_allowed_udp_ports = [
   53
 ]
+
+terraform_state_bucket = "emmanuelogah-aws-lz-tfstate"
+state_region = "us-east-1"

@@ -16,4 +16,9 @@ module "organizations" {
   workloads_ou_name      = var.workloads_ou_name
   production_ou_name     = var.production_ou_name
   nonproduction_ou_name  = var.nonproduction_ou_name
+  infrastructure_account_email = var.infrastructure_account_email
+  workloads_account_email = var.workloads_account_email
+  production_account_email = var. production_account_email
+  nonproduction_account_email = var.nonproduction_account_email
+  policy_tags = var.common_tags
 }

@@ -141,3 +141,18 @@ variable "nonproduction_account_id" {
   description = "AWS NonProduction account ID"
   type        = string
 }
+
+variable "terraform_state_bucket" {
+  description = "Terraform state bucket"
+  type = string
+}
+
+variable "state_region" {
+  description = "AWS terraform state region"
+  type = string
+}
+
+variable "shared_corporate_resolver_rule_id" {
+  description = "Central corporate DNS Resolver rule ID"
+  type        = string
+}

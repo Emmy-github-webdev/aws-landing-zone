@@ -21,6 +21,10 @@ provider "aws" {
   alias  = "infrastructure"
   region = var.primary_region
 
+  assume_role {
+    role_arn = "arn:aws:iam::${local.infrastructure_account_id}:role/OrganizationAccountAccessRole"
+  }
+
   default_tags {
     tags = var.common_tags
   }
@@ -30,6 +34,10 @@ provider "aws" {
   alias  = "production"
   region = var.primary_region
 
+  assume_role {
+    role_arn = "arn:aws:iam::${local.production_account_id}:role/OrganizationAccountAccessRole"
+  }
+
   default_tags {
     tags = var.common_tags
   }
@@ -38,6 +46,10 @@ provider "aws" {
 provider "aws" {
   alias  = "nonproduction"
   region = var.primary_region
+
+  assume_role {
+    role_arn = "arn:aws:iam::${local.nonproduction_account_id}:role/OrganizationAccountAccessRole"
+  }
 
   default_tags {
     tags = var.common_tags
