@@ -148,3 +148,24 @@ resource "aws_iam_service_linked_role" "access_analyzer" {
 
   aws_service_name = "access-analyzer.amazonaws.com"
 }
+
+# ============================================================
+# AWS Config organization integration
+# ============================================================
+
+resource "aws_organizations_aws_service_access" "config" {
+  provider = aws.management
+
+  service_principal = "config.amazonaws.com"
+}
+
+resource "aws_organizations_delegated_administrator" "config" {
+  provider = aws.management
+
+  account_id        = var.security_account_id
+  service_principal = "config.amazonaws.com"
+
+  depends_on = [
+    aws_organizations_aws_service_access.config
+  ]
+}

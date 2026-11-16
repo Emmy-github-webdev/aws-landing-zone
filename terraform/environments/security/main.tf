@@ -18,6 +18,11 @@
 #   id = var.security_account_id
 # }
 
+import {
+  to = module.security_primary.aws_securityhub_account.security[0]
+  id = var.security_account_id
+}
+
 # Primary region security deployment
 
 module "security_primary" {
@@ -53,7 +58,8 @@ module "security_primary" {
   depends_on = [
     aws_securityhub_organization_admin_account.security_primary,
     aws_iam_service_linked_role.access_analyzer,
-    aws_organizations_delegated_administrator.access_analyzer
+    aws_organizations_delegated_administrator.access_analyzer,
+    aws_organizations_delegated_administrator.config
   ]
 }
 
@@ -92,7 +98,8 @@ module "security_secondary" {
   depends_on = [
     aws_securityhub_organization_admin_account.security_secondary,
     aws_iam_service_linked_role.access_analyzer,
-    aws_organizations_delegated_administrator.access_analyzer
+    aws_organizations_delegated_administrator.access_analyzer,
+    aws_organizations_delegated_administrator.config
   ]
 
 }
