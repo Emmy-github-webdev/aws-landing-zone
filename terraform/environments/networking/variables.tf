@@ -156,8 +156,3 @@ variable "shared_corporate_resolver_rule_id" {
   description = "Central corporate DNS Resolver rule ID"
   type        = string
 }
-
-variable "logging_account_id" {
-  description = "Logging account ID"
-  type        = string
-}
