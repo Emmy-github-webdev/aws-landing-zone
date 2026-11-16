@@ -23,6 +23,11 @@ import {
   id = var.security_account_id
 }
 
+import {
+  to = aws_organizations_delegated_administrator.config
+  id = "${var.security_account_id}/config.amazonaws.com"
+}
+
 # Primary region security deployment
 
 module "security_primary" {
