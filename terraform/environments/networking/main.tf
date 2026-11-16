@@ -49,8 +49,7 @@ module "networking" {
 
   dns_log_retention_days = var.dns_log_retention_days
 
-  shared_corporate_resolver_rule_id = local.shared_corporate_resolver_rule_id
-  logging_account_id                = var.logging_account_id
+  logging_account_id = var.logging_account_id
 
   policy_tags = var.common_tags
 }

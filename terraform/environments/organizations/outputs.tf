@@ -18,6 +18,18 @@ output "accounts" {
   value = module.organizations.accounts
 }
 
+output "infrastructure_account_id" {
+  value = module.organizations.infrastructure_account_id
+}
+
+output "production_account_id" {
+  value = module.organizations.production_account_id
+}
+
+output "nonproduction_account_id" {
+  value = module.organizations.nonproduction_account_id
+}
+
 output "infrastructure_ou_id" {
   value = module.organizations.infrastructure_ou_id
 }

@@ -60,11 +60,6 @@ variable "dns_onpremises_cidrs" {
   default     = []
 }
 
-variable "shared_corporate_resolver_rule_id" {
-  description = "Shared corporate resolver rule id"
-  type        = string
-}
-
 variable "logging_account_id" {
   description = "Logging account ID"
   type        = string

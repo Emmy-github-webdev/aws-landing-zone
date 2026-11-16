@@ -174,48 +174,98 @@ resource "aws_route53_resolver_rule_association" "infrastructure" {
   vpc_id           = aws_vpc.infrastructure.id
 }
 
+resource "aws_ram_resource_share" "corporate_dns" {
+  provider = aws.infrastructure
+
+  count = (
+    var.enable_dns_security &&
+    length(var.dns_onpremises_resolver_ips) > 0
+  ) ? 1 : 0
+
+  name                      = "lz-corporate-dns-rule-share"
+  allow_external_principals = false
+
+  tags = local.common_tags
+}
+
+resource "aws_ram_resource_association" "corporate_dns" {
+  provider = aws.infrastructure
+
+  count = (
+    var.enable_dns_security &&
+    length(var.dns_onpremises_resolver_ips) > 0
+  ) ? 1 : 0
+
+  resource_arn       = aws_route53_resolver_rule.corporate[0].arn
+  resource_share_arn = aws_ram_resource_share.corporate_dns[0].arn
+}
+
+resource "aws_ram_principal_association" "corporate_dns" {
+  provider = aws.infrastructure
+
+  count = (
+    var.enable_dns_security &&
+    length(var.dns_onpremises_resolver_ips) > 0
+  ) ? 1 : 0
+
+  principal          = var.organization_id
+  resource_share_arn = aws_ram_resource_share.corporate_dns[0].arn
+}
+
 data "aws_route53_resolver_rule" "corporate" {
   provider = aws.production
 
-  resolver_rule_id = var.shared_corporate_resolver_rule_id
+  count = (
+    var.enable_dns_security &&
+    length(var.dns_onpremises_resolver_ips) > 0
+  ) ? 1 : 0
+
+  resolver_rule_id = aws_route53_resolver_rule.corporate[0].id
+
+  depends_on = [
+    aws_ram_resource_association.corporate_dns,
+    aws_ram_principal_association.corporate_dns
+  ]
 }
 
 resource "aws_route53_resolver_rule_association" "corporate" {
   provider = aws.production
 
-  name             = "lz-production-corporate-dns"
-  resolver_rule_id = data.aws_route53_resolver_rule.corporate.id
-  vpc_id           = aws_vpc.production.id
-}
-
-# Production DNS Resolver rule association
-
-data "aws_route53_resolver_rule" "corporate_production" {
-  provider = aws.production
-
-  resolver_rule_id = var.shared_corporate_resolver_rule_id
-}
-
-resource "aws_route53_resolver_rule_association" "corporate_production" {
-  provider = aws.production
+  count = (
+    var.enable_dns_security &&
+    length(var.dns_onpremises_resolver_ips) > 0
+  ) ? 1 : 0
 
   name             = "lz-production-corporate-dns"
-  resolver_rule_id = data.aws_route53_resolver_rule.corporate_production.id
+  resolver_rule_id = data.aws_route53_resolver_rule.corporate[0].id
   vpc_id           = aws_vpc.production.id
 }
-
-# NonProduction DNS Resolver rule association
 
 data "aws_route53_resolver_rule" "corporate_nonproduction" {
   provider = aws.nonproduction
 
-  resolver_rule_id = var.shared_corporate_resolver_rule_id
+  count = (
+    var.enable_dns_security &&
+    length(var.dns_onpremises_resolver_ips) > 0
+  ) ? 1 : 0
+
+  resolver_rule_id = aws_route53_resolver_rule.corporate[0].id
+
+  depends_on = [
+    aws_ram_resource_association.corporate_dns,
+    aws_ram_principal_association.corporate_dns
+  ]
 }
 
 resource "aws_route53_resolver_rule_association" "corporate_nonproduction" {
   provider = aws.nonproduction
 
+  count = (
+    var.enable_dns_security &&
+    length(var.dns_onpremises_resolver_ips) > 0
+  ) ? 1 : 0
+
   name             = "lz-nonproduction-corporate-dns"
-  resolver_rule_id = data.aws_route53_resolver_rule.corporate_nonproduction.id
+  resolver_rule_id = data.aws_route53_resolver_rule.corporate_nonproduction[0].id
   vpc_id           = aws_vpc.nonproduction.id
 }
