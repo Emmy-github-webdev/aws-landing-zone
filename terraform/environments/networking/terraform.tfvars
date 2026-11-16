@@ -30,4 +30,4 @@ firewall_allowed_udp_ports = [
 ]
 
 terraform_state_bucket = "emmanuelogah-aws-lz-tfstate"
-state_region = "us-east-1"
+state_region           = "us-east-1"

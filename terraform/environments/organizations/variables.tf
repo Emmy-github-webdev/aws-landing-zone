@@ -74,19 +74,19 @@ variable "identity_center_enabled_baseline_arn" {
 
 variable "infrastructure_account_email" {
   description = "Infrastructure accout email"
-  type = string
+  type        = string
 }
 
 variable "workloads_account_email" {
   description = "workloads accout email"
-  type = string
+  type        = string
 }
 
 variable "production_account_email" {
   description = "workloads accout email"
-  type = string
+  type        = string
 }
 variable "nonproduction_account_email" {
   description = "workloads accout email"
-  type = string
+  type        = string
 }

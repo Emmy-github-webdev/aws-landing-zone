@@ -144,12 +144,12 @@ variable "nonproduction_account_id" {
 
 variable "terraform_state_bucket" {
   description = "Terraform state bucket"
-  type = string
+  type        = string
 }
 
 variable "state_region" {
   description = "AWS terraform state region"
-  type = string
+  type        = string
 }
 
 variable "shared_corporate_resolver_rule_id" {
