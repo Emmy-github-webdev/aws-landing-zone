@@ -1,10 +1,10 @@
 output "egress_vpc_id" {
   description = "Egress VPC ID"
-  value       = aws_vpc.egress.id
+  value       = try(aws_vpc.egress[0].id, null)
 }
 
 output "egress_firewall_arn" {
-  value = aws_networkfirewall_firewall.egress.arn
+  value = try(aws_networkfirewall_firewall.egress[0].arn, null)
 }
 
 output "ress_nat_public_ips" {

@@ -145,7 +145,7 @@ resource "aws_iam_role" "cloudwatch_to_firehose" {
       Effect = "Allow"
 
       Principal = {
-        Service = "logs.${data.aws_region.current.name}.amazonaws.com"
+        Service = "logs.${data.aws_region.current.region}.amazonaws.com"
       }
 
       Action = "sts:AssumeRole"
@@ -156,7 +156,7 @@ resource "aws_iam_role" "cloudwatch_to_firehose" {
         }
 
         ArnLike = {
-          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:log-group:${var.source_log_group_name}:*"
+          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:${var.source_log_group_name}:*"
         }
       }
     }]
