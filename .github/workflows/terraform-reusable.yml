@@ -130,8 +130,12 @@ jobs:
             -backend-config="encrypt=true" \
             -backend-config="use_lockfile=true"
 
+      # Troubleshoot
       - name: Terraform Validate
         run: terraform validate
+
+      - name: Check Terraform state
+        run: terraform state list | grep 'aws_organizations'
 
       # Terraform operation
       - name: Determine Terraform Action
