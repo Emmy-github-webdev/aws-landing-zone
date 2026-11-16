@@ -7,9 +7,18 @@ terraform {
       version = ">= 5.80, < 7.0"
 
       configuration_aliases = [
-        aws.management,
-        aws.management_secondary
+        aws.management
       ]
     }
   }
+}
+
+provider "aws" {
+  alias  = "management"
+  region = var.primary_region
+}
+
+provider "aws" {
+  alias  = "management_secondary"
+  region = var.secondary_region
 }
