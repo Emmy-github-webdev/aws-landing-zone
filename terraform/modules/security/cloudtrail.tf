@@ -22,12 +22,10 @@ resource "aws_cloudtrail" "organization" {
 
 
 
-
 data "aws_iam_policy_document" "audit_logs" {
-  provider = aws.logging
-
   count = var.enable_cloudtrail ? 1 : 0
 
+  # Allow CloudTrail to check bucket permissions
   statement {
     sid    = "AWSCloudTrailAclCheck"
     effect = "Allow"
@@ -55,8 +53,9 @@ data "aws_iam_policy_document" "audit_logs" {
     }
   }
 
+  # Allow CloudTrail to write organization logs
   statement {
-    sid    = "AWSCloudTrailWrite"
+    sid    = "AWSCloudTrailOrganizationWrite"
     effect = "Allow"
 
     principals {
@@ -91,6 +90,7 @@ data "aws_iam_policy_document" "audit_logs" {
     }
   }
 }
+
 
 
 # Cloudtrail bucket policy
