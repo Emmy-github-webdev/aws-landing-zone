@@ -28,6 +28,11 @@ firewall_allowed_tcp_ports = [
 firewall_allowed_udp_ports = [
   53
 ]
+firewall_home_net_cidrs = [
+  "10.10.0.0/16",
+  "10.20.0.0/16",
+  "10.30.0.0/16"
+]
 
 terraform_state_bucket = "emmanuelogah-aws-lz-tfstate"
 state_region           = "us-east-1"

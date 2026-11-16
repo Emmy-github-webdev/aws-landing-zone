@@ -72,10 +72,10 @@ resource "aws_route53_resolver_endpoint" "inbound" {
   ]
 
   dynamic "ip_address" {
-    for_each = var.dns_resolver_subnet_ids
+    for_each = aws_subnet.infrastructure_private
 
     content {
-      subnet_id = ip_address.value
+      subnet_id = ip_address.value.id
     }
   }
 
@@ -88,7 +88,7 @@ resource "aws_route53_resolver_endpoint" "inbound" {
 
   lifecycle {
     precondition {
-      condition     = length(var.dns_resolver_subnet_ids) >= 2
+      condition     = length(aws_subnet.infrastructure_private) >= 2
       error_message = "At least two Resolver endpoint subnets in separate AZs are required."
     }
   }
@@ -108,10 +108,10 @@ resource "aws_route53_resolver_endpoint" "outbound" {
   ]
 
   dynamic "ip_address" {
-    for_each = var.dns_resolver_subnet_ids
+    for_each = aws_subnet.infrastructure_private
 
     content {
-      subnet_id = ip_address.value
+      subnet_id = ip_address.value.id
     }
   }
 
@@ -124,7 +124,7 @@ resource "aws_route53_resolver_endpoint" "outbound" {
 
   lifecycle {
     precondition {
-      condition     = length(var.dns_resolver_subnet_ids) >= 2
+      condition     = length(aws_subnet.infrastructure_private) >= 2
       error_message = "At least two Resolver endpoint subnets in separate AZs are required."
     }
   }

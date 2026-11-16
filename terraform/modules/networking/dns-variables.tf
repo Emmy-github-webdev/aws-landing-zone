@@ -5,12 +5,6 @@ variable "enable_dns_security" {
   default     = true
 }
 
-variable "dns_resolver_subnet_ids" {
-  description = "Private Infrastructure VPC subnets for Resolver endpoints, one per AZ"
-  type        = list(string)
-  default     = []
-}
-
 variable "dns_onpremises_resolver_ips" {
   description = "On-premises DNS servers used for conditional forwarding"
   type        = list(string)
@@ -64,11 +58,6 @@ variable "dns_onpremises_cidrs" {
   description = "On-premises networks permitted to access DNS services"
   type        = list(string)
   default     = []
-}
-
-variable "organization_arn" {
-  description = "AWS Organization ARN used for RAM sharing"
-  type        = string
 }
 
 variable "shared_corporate_resolver_rule_id" {

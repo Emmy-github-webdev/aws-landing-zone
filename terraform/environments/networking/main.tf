@@ -12,9 +12,9 @@ module "networking" {
   dns_archive_retention_days = var.dns_archive_retention_days
   organization_id            = data.terraform_remote_state.organizations.outputs.organization_id
 
-  infrastructure_account_id = var.infrastructure_account_id
-  production_account_id     = var.production_account_id
-  nonproduction_account_id  = var.nonproduction_account_id
+  infrastructure_account_id = local.infrastructure_account_id
+  production_account_id     = local.production_account_id
+  nonproduction_account_id  = local.nonproduction_account_id
 
   primary_region = var.primary_region
 
@@ -37,8 +37,6 @@ module "networking" {
 
   enable_dns_security = var.enable_dns_security
 
-  dns_resolver_subnet_ids = var.dns_resolver_subnet_ids
-
   dns_onpremises_resolver_ips = var.dns_onpremises_resolver_ips
 
   dns_private_domain = var.dns_private_domain
@@ -50,8 +48,6 @@ module "networking" {
   dns_onpremises_cidrs = var.dns_onpremises_cidrs
 
   dns_log_retention_days = var.dns_log_retention_days
-
-  organization_arn = var.organization_arn
 
   shared_corporate_resolver_rule_id = local.shared_corporate_resolver_rule_id
   logging_account_id                = var.logging_account_id

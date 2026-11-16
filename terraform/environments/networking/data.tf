@@ -11,15 +11,24 @@ data "terraform_remote_state" "organizations" {
 
 locals {
   infrastructure_account_id = (
-    data.terraform_remote_state.organizations.outputs.accounts.infrastructure
+    one([
+      for account_id, account in data.terraform_remote_state.organizations.outputs.accounts :
+      account_id if lower(account.name) == "infrastructure"
+    ])
   )
 
   production_account_id = (
-    data.terraform_remote_state.organizations.outputs.accounts.production
+    one([
+      for account_id, account in data.terraform_remote_state.organizations.outputs.accounts :
+      account_id if lower(account.name) == "production"
+    ])
   )
 
   nonproduction_account_id = (
-    data.terraform_remote_state.organizations.outputs.accounts.nonproduction
+    one([
+      for account_id, account in data.terraform_remote_state.organizations.outputs.accounts :
+      account_id if lower(account.name) == "nonproduction"
+    ])
   )
 
 }
