@@ -54,6 +54,7 @@ module "networking" {
   organization_arn = var.organization_arn
 
   shared_corporate_resolver_rule_id = local.shared_corporate_resolver_rule_id
+  logging_account_id                = var.logging_account_id
 
   policy_tags = var.common_tags
 }

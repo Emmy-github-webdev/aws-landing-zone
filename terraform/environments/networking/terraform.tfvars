@@ -31,3 +31,4 @@ firewall_allowed_udp_ports = [
 
 terraform_state_bucket = "emmanuelogah-aws-lz-tfstate"
 state_region           = "us-east-1"
+logging_account_id     = "787461921629"
