@@ -24,18 +24,18 @@ locals {
 
 }
 
-# data "terraform_remote_state" "networking" {
-#   backend = "s3"
+data "terraform_remote_state" "networking" {
+  backend = "s3"
 
-#   config = {
-#     bucket = "emmanuelogah-aws-lz-tfstate"
-#     key    = "landing-zone/networking/terraform.tfstate"
-#     region = var.state_region
-#   }
-# }
+  config = {
+    bucket = "emmanuelogah-aws-lz-tfstate"
+    key    = "landing-zone/networking/terraform.tfstate"
+    region = var.state_region
+  }
+}
 
-# locals {
-#   shared_corporate_resolver_rule_id = (
-#     data.terraform_remote_state.networking.outputs.dns_corporate_resolver_rule_id
-#   )
-# }
+locals {
+  shared_corporate_resolver_rule_id = (
+    data.terraform_remote_state.networking.outputs.dns_corporate_resolver_rule_id
+  )
+}

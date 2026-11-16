@@ -70,3 +70,8 @@ variable "organization_arn" {
   description = "AWS Organization ARN used for RAM sharing"
   type        = string
 }
+
+variable "shared_corporate_resolver_rule_id" {
+  description = "Shared corporate resolver rule id"
+  type        = string
+}
