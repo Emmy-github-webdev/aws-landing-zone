@@ -25,7 +25,7 @@ resource "aws_cloudtrail" "organization" {
 data "aws_iam_policy_document" "audit_logs" {
   count = var.enable_cloudtrail ? 1 : 0
 
-  # Allow CloudTrail to check bucket permissions
+  # 1. Allow CloudTrail to check bucket permissions
   statement {
     sid    = "AWSCloudTrailAclCheck"
     effect = "Allow"
@@ -35,9 +35,7 @@ data "aws_iam_policy_document" "audit_logs" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
 
-    actions = [
-      "s3:GetBucketAcl"
-    ]
+    actions = ["s3:GetBucketAcl"]
 
     resources = [
       aws_s3_bucket.audit_logs[0].arn
@@ -53,7 +51,39 @@ data "aws_iam_policy_document" "audit_logs" {
     }
   }
 
-  # Allow CloudTrail to write organization logs
+  # 2. Allow management account log delivery
+  statement {
+    sid    = "AWSCloudTrailManagementWrite"
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudtrail.amazonaws.com"]
+    }
+
+    actions = ["s3:PutObject"]
+
+    resources = [
+      "${aws_s3_bucket.audit_logs[0].arn}/cloudtrail/AWSLogs/${var.management_account_id}/*"
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "s3:x-amz-acl"
+      values   = ["bucket-owner-full-control"]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceArn"
+
+      values = [
+        "arn:aws:cloudtrail:${var.primary_region}:${var.management_account_id}:trail/${var.cloudtrail_name}"
+      ]
+    }
+  }
+
+  # 3. Allow organization-wide log delivery
   statement {
     sid    = "AWSCloudTrailOrganizationWrite"
     effect = "Allow"
@@ -63,9 +93,7 @@ data "aws_iam_policy_document" "audit_logs" {
       identifiers = ["cloudtrail.amazonaws.com"]
     }
 
-    actions = [
-      "s3:PutObject"
-    ]
+    actions = ["s3:PutObject"]
 
     resources = [
       "${aws_s3_bucket.audit_logs[0].arn}/cloudtrail/AWSLogs/${var.organization_id}/*"
@@ -74,10 +102,7 @@ data "aws_iam_policy_document" "audit_logs" {
     condition {
       test     = "StringEquals"
       variable = "s3:x-amz-acl"
-
-      values = [
-        "bucket-owner-full-control"
-      ]
+      values   = ["bucket-owner-full-control"]
     }
 
     condition {
@@ -91,13 +116,9 @@ data "aws_iam_policy_document" "audit_logs" {
   }
 }
 
-
-
-# Cloudtrail bucket policy
 resource "aws_s3_bucket_policy" "audit_logs" {
   provider = aws.logging
-
-  count = var.enable_cloudtrail ? 1 : 0
+  count    = var.enable_cloudtrail ? 1 : 0
 
   bucket = aws_s3_bucket.audit_logs[0].id
   policy = data.aws_iam_policy_document.audit_logs[0].json
