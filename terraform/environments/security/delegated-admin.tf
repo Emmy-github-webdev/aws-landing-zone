@@ -138,7 +138,8 @@ resource "aws_organizations_delegated_administrator" "access_analyzer" {
   service_principal = "access-analyzer.amazonaws.com"
 
   depends_on = [
-    aws_organizations_aws_service_access.access_analyzer
+    aws_organizations_aws_service_access.access_analyzer,
+    aws_iam_service_linked_role.access_analyzer
   ]
 }
 

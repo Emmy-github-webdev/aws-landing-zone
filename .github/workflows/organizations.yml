@@ -37,7 +37,7 @@ permissions:
 
 concurrency:
   group: terraform-organizations
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 
 jobs:
