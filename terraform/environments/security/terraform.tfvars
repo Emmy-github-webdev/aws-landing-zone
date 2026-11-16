@@ -10,5 +10,5 @@ approved_regions = [
   "us-east-1",
   "us-west-2"
 ]
-config_aggregator_role_arn = "arn:aws:iam::579871530627:role/service-role/AWSControlTowerConfigAggregatorRoleForOrganizations"
+config_aggregator_role_arn = "arn:aws:iam::878250098179:role/AWSConfigRoleForOrganizations"
 environment                = "Security"
