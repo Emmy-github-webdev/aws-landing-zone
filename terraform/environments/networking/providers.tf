@@ -10,7 +10,8 @@ terraform {
       configuration_aliases = [
         aws.infrastructure,
         aws.production,
-        aws.nonproduction
+        aws.nonproduction,
+        aws.logging
       ]
     }
   }

@@ -6,6 +6,7 @@ module "networking" {
     aws.infrastructure = aws.infrastructure
     aws.production     = aws.production
     aws.nonproduction  = aws.nonproduction
+    aws.logging        = aws.logging
   }
 
   dns_archive_retention_days = var.dns_archive_retention_days
