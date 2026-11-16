@@ -100,6 +100,14 @@ variable "policy_tags" {
 }
 
 variable "config_aggregator_role_arn" {
-  description = "Role ARN used by AWS Config for organization aggregation"
+  description = "AWS Config aggregator role in the security account"
   type        = string
+
+  validation {
+    condition = can(regex(
+      "^arn:aws:iam::[0-9]{12}:role/.+$",
+      var.config_aggregator_role_arn
+    ))
+    error_message = "config_aggregator_role_arn must be a valid IAM role ARN."
+  }
 }

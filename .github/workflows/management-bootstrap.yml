@@ -35,7 +35,7 @@ permissions:
 
 concurrency:
   group: terraform-management-bootstrap
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 
 jobs:
