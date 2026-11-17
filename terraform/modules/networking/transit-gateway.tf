@@ -91,7 +91,7 @@ resource "aws_ec2_transit_gateway_route_table" "infrastructure" {
 resource "aws_ec2_transit_gateway_vpc_attachment" "infrastructure" {
   provider = aws.infrastructure
 
-  subnet_ids = aws_subnet.infrastructure_private[*].id
+  subnet_ids = [for subnet in aws_subnet.infrastructure_private : subnet.id]
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
   vpc_id             = aws_vpc.infrastructure.id
