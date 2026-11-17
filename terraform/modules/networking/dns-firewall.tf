@@ -43,7 +43,7 @@ resource "aws_route53_resolver_firewall_rule_group_association" "infrastructure"
   name                   = "lz-infrastructure-dns-firewall"
   firewall_rule_group_id = aws_route53_resolver_firewall_rule_group.infrastructure[0].id
   vpc_id                 = aws_vpc.infrastructure.id
-  priority               = 100
+  priority               = 101
 
   mutation_protection = "ENABLED"
 }
@@ -147,7 +147,7 @@ resource "aws_route53_resolver_firewall_rule_group_association" "nonproduction" 
   name                   = "lz-nonproduction-dns-firewall"
   firewall_rule_group_id = aws_route53_resolver_firewall_rule_group.nonproduction[0].id
   vpc_id                 = aws_vpc.nonproduction.id
-  priority               = 100
+  priority               = 101
 
   mutation_protection = "ENABLED"
 }
