@@ -30,7 +30,7 @@ resource "aws_route53_resolver_firewall_rule" "blocked_infrastructure" {
   block_response          = "NXDOMAIN"
   firewall_domain_list_id = aws_route53_resolver_firewall_domain_list.blocked_infrastructure[0].id
   firewall_rule_group_id  = aws_route53_resolver_firewall_rule_group.infrastructure[0].id
-  priority                = 100
+  priority                = 101
 
   firewall_domain_redirection_action = "INSPECT_REDIRECTION_DOMAIN"
 }
@@ -94,7 +94,7 @@ resource "aws_route53_resolver_firewall_rule_group_association" "production" {
   name                   = "lz-production-dns-firewall"
   firewall_rule_group_id = aws_route53_resolver_firewall_rule_group.production[0].id
   vpc_id                 = aws_vpc.production.id
-  priority               = 100
+  priority               = 101
 
   mutation_protection = "ENABLED"
 }

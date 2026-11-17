@@ -12,5 +12,5 @@ output "egress_nat_public_ips" {
 }
 
 output "egress_firewall_endpoint_ids" {
-  value = aws_route.egress_tgw_to_firewall
+  value = local.firewall_endpoint_ids
 }
