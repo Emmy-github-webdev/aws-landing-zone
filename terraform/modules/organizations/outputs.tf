@@ -37,6 +37,21 @@ output "accounts" {
   }
 }
 
+output "infrastructure_account_id" {
+  description = "Infrastructure AWS account ID"
+  value       = aws_organizations_account.infrastructure.id
+}
+
+output "production_account_id" {
+  description = "Production AWS account ID"
+  value       = aws_organizations_account.production.id
+}
+
+output "nonproduction_account_id" {
+  description = "NonProduction AWS account ID"
+  value       = aws_organizations_account.nonproduction.id
+}
+
 output "organization_id" {
   description = "Existing AWS Organization ID"
   value       = data.aws_organizations_organization.current.id

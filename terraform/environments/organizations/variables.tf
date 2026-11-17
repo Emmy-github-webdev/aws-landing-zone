@@ -1,3 +1,14 @@
+variable "common_tags" {
+  description = "Common oeganization tags"
+  type        = map(string)
+
+  default = {
+    ManagedBy   = "Terraform"
+    Environment = "Organization"
+    Project     = "AWS-Landing-Zone"
+  }
+}
+
 variable "aws_region" {
   description = "AWS Control Tower home region"
   type        = string
@@ -58,5 +69,24 @@ variable "control_tower_baseline_version" {
 
 variable "identity_center_enabled_baseline_arn" {
   description = "AWS Control Tower baseline ARN for Identity Center enabled accounts"
+  type        = string
+}
+
+variable "infrastructure_account_email" {
+  description = "Infrastructure accout email"
+  type        = string
+}
+
+variable "workloads_account_email" {
+  description = "workloads accout email"
+  type        = string
+}
+
+variable "production_account_email" {
+  description = "workloads accout email"
+  type        = string
+}
+variable "nonproduction_account_email" {
+  description = "workloads accout email"
   type        = string
 }

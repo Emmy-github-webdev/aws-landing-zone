@@ -40,14 +40,14 @@ resource "aws_iam_role" "central_dns_logs" {
       Effect = "Allow"
 
       Principal = {
-        Service = "logs.${data.aws_region.logging.name}.amazonaws.com"
+        Service = "logs.${data.aws_region.logging.region}.amazonaws.com"
       }
 
       Action = "sts:AssumeRole"
 
       Condition = {
         StringLike = {
-          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.logging.name}:${data.aws_caller_identity.logging.account_id}:*"
+          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.logging.region}:${data.aws_caller_identity.logging.account_id}:*"
         }
       }
     }]

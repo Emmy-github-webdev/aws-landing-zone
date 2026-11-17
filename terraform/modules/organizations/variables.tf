@@ -1,3 +1,9 @@
+
+variable "policy_tags" {
+  description = "Tags applied to security resources"
+  type        = map(string)
+}
+
 variable "expected_organization_id" {
   description = "Expected existing AWS Organization ID"
   type        = string
@@ -55,5 +61,25 @@ variable "control_tower_baseline_version" {
 
 variable "identity_center_enabled_baseline_arn" {
   description = "Existing Identity Center enabled baseline ARN"
+  type        = string
+}
+
+variable "infrastructure_account_email" {
+  description = "Unique email address for the Infrastructure AWS account"
+  type        = string
+}
+
+variable "workloads_account_email" {
+  description = "Unique email address for the Workloads AWS account"
+  type        = string
+}
+
+variable "production_account_email" {
+  description = "Unique email address for the Workloads AWS account"
+  type        = string
+}
+
+variable "nonproduction_account_email" {
+  description = "Unique email address for the Workloads AWS account"
   type        = string
 }

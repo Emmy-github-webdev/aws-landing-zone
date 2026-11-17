@@ -13,7 +13,6 @@ resource "aws_ec2_transit_gateway_route_table" "egress" {
     }
   )
 }
-
 resource "aws_ec2_transit_gateway_vpc_attachment" "egress" {
   provider = aws.infrastructure
 
@@ -27,10 +26,8 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "egress" {
   transit_gateway_id = aws_ec2_transit_gateway.main.id
   vpc_id             = aws_vpc.egress[0].id
 
-  options {
-    appliance_mode_support = "enable"
-    dns_support            = "enable"
-  }
+  appliance_mode_support = "enable"
+  dns_support            = "enable"
 
   tags = merge(
     local.common_tags,

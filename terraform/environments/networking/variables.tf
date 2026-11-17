@@ -77,11 +77,6 @@ variable "enable_dns_security" {
   default     = true
 }
 
-variable "dns_resolver_subnet_ids" {
-  description = "Infrastructure VPC private subnet IDs for DNS Resolver endpoints"
-  type        = list(string)
-}
-
 variable "dns_onpremises_resolver_ips" {
   description = "Corporate DNS server IP addresses"
   type        = list(string)
@@ -91,6 +86,15 @@ variable "dns_onpremises_resolver_ips" {
 variable "dns_private_domain" {
   description = "Corporate private DNS domain"
   type        = string
+  default     = ""
+
+  validation {
+    condition = (
+      length(var.dns_onpremises_resolver_ips) == 0 ||
+      length(var.dns_private_domain) > 0
+    )
+    error_message = "Set dns_private_domain when dns_onpremises_resolver_ips is configured."
+  }
 }
 
 variable "dns_firewall_blocked_domains" {
@@ -117,27 +121,17 @@ variable "dns_log_retention_days" {
   default     = 90
 }
 
-variable "organization_arn" {
-  description = "AWS Organization ARN"
-  type        = string
-}
-
 variable "logging_account_id" {
   description = "AWS Logging account ID"
   type        = string
 }
 
-variable "infrastructure_account_id" {
-  description = "AWS Infrastructure account ID"
+variable "terraform_state_bucket" {
+  description = "Terraform state bucket"
   type        = string
 }
 
-variable "production_account_id" {
-  description = "AWS Production account ID"
-  type        = string
-}
-
-variable "nonproduction_account_id" {
-  description = "AWS NonProduction account ID"
+variable "state_region" {
+  description = "AWS terraform state region"
   type        = string
 }
