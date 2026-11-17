@@ -131,7 +131,11 @@ locals {
   )
 
   firewall_endpoint_ids = var.enable_centralized_egress ? {
-    for sync_state in aws_networkfirewall_firewall.egress[0].firewall_status[0].sync_states :
-    local.az_name_to_id[sync_state.availability_zone] => sync_state.attachment[0].endpoint_id
+    for az_id in keys(local.egress_az_indices) :
+    az_id => one([
+      for sync_state in aws_networkfirewall_firewall.egress[0].firewall_status[0].sync_states :
+      sync_state.attachment[0].endpoint_id
+      if local.az_name_to_id[sync_state.availability_zone] == az_id
+    ])
   } : {}
 }

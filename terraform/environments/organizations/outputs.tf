@@ -2,6 +2,10 @@ output "organization_id" {
   value = module.organizations.organization_id
 }
 
+output "organization_arn" {
+  value = module.organizations.organization_arn
+}
+
 output "management_account_id" {
   value = module.organizations.management_account_id
 }

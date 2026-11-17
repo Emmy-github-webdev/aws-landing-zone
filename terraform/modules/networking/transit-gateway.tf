@@ -39,7 +39,7 @@ resource "aws_ram_resource_association" "transit_gateway" {
 resource "aws_ram_principal_association" "organization" {
   provider = aws.infrastructure
 
-  principal          = var.organization_id
+  principal          = var.organization_arn
   resource_share_arn = aws_ram_resource_share.transit_gateway.arn
 }
 
@@ -113,7 +113,7 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "infrastructure" {
 resource "aws_ec2_transit_gateway_vpc_attachment" "production" {
   provider = aws.production
 
-  subnet_ids = aws_subnet.production_private[*].id
+  subnet_ids = [for subnet in aws_subnet.production_private : subnet.id]
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
   vpc_id             = aws_vpc.production.id
@@ -131,7 +131,7 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "production" {
 resource "aws_ec2_transit_gateway_vpc_attachment" "nonproduction" {
   provider = aws.nonproduction
 
-  subnet_ids = aws_subnet.nonproduction_private[*].id
+  subnet_ids = [for subnet in aws_subnet.nonproduction_private : subnet.id]
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
   vpc_id             = aws_vpc.nonproduction.id

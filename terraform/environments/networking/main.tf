@@ -11,6 +11,7 @@ module "networking" {
 
   dns_archive_retention_days = var.dns_archive_retention_days
   organization_id            = data.terraform_remote_state.organizations.outputs.organization_id
+  organization_arn           = data.terraform_remote_state.organizations.outputs.organization_arn
 
   infrastructure_account_id = local.infrastructure_account_id
   production_account_id     = local.production_account_id

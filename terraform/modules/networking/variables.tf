@@ -3,6 +3,11 @@ variable "organization_id" {
   type        = string
 }
 
+variable "organization_arn" {
+  description = "AWS Organization ARN used for RAM resource shares"
+  type        = string
+}
+
 variable "infrastructure_account_id" {
   description = "Infrastructure account ID"
   type        = string
