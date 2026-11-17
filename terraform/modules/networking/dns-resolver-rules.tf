@@ -208,7 +208,7 @@ resource "aws_ram_principal_association" "corporate_dns" {
     length(var.dns_onpremises_resolver_ips) > 0
   ) ? 1 : 0
 
-  principal          = var.organization_id
+  principal          = var.organization_arn
   resource_share_arn = aws_ram_resource_share.corporate_dns[0].arn
 }
 

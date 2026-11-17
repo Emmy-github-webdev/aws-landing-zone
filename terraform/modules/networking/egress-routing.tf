@@ -203,12 +203,12 @@ resource "aws_route_table_association" "egress_public_az" {
 resource "aws_route" "egress_tgw_to_firewall" {
   provider = aws.infrastructure
 
-  for_each = local.firewall_endpoint_ids
+  for_each = local.egress_az_indices
 
   route_table_id         = aws_route_table.egress_tgw[each.key].id
   destination_cidr_block = "0.0.0.0/0"
 
-  vpc_endpoint_id = each.value
+  vpc_endpoint_id = local.firewall_endpoint_ids[each.key]
 
   depends_on = [
     aws_networkfirewall_firewall.egress
