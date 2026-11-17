@@ -134,6 +134,22 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Check AWS Account States
+        run: |
+          for account in \
+            503676493255 \
+            414473839373 \
+            161132473946 \
+            982498569597
+          do
+            echo "Checking account: $account"
+
+            aws organizations describe-account \
+              --account-id "$account" \
+              --query 'Account.{Id:Id,Name:Name,State:State}' \
+              --output table
+          done
+
       # Terraform operation
       - name: Determine Terraform Action
         id: action
