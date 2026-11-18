@@ -134,6 +134,14 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      # Refresh
+      - name: Terraform Refresh
+        run: terraform apply -refresh-only
+
+      # Refresh
+      - name: Terraform Apply Refresh
+        run: terraform apply -refresh-only
+
       # Terraform operation
       - name: Determine Terraform Action
         id: action
@@ -162,14 +170,6 @@ jobs:
             -input=false \
             -lock-timeout=5m \
             -out=tfplan
-
-      - name: Show Plan Output 1
-        run: |
-          terraform plan -refresh-only -out=tf-refresh.tfplan 
-
-      - name: Show Plan Output 2
-        run: |
-          terraform show tf-refresh.tfplan
 
       # Upload plan
       - name: Upload Terraform Plan
