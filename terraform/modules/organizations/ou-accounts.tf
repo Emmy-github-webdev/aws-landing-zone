@@ -5,12 +5,13 @@ resource "aws_organizations_account" "infrastructure" {
 
   role_name = "OrganizationAccountAccessRole"
 
-  close_on_deletion = true # set to false for production
+  close_on_deletion = false # set to false for production
 
   tags = var.policy_tags
 
   lifecycle {
-    prevent_destroy = false # Set to true for production. This is a test.
+    ignore_changes  = [role_name]
+    prevent_destroy = true # Set to true for production. This is a test.
   }
 }
 
@@ -21,12 +22,13 @@ resource "aws_organizations_account" "workloads" {
 
   role_name = "OrganizationAccountAccessRole"
 
-  close_on_deletion = true # Set to false for production
+  close_on_deletion = false # Set to false for production
 
   tags = var.policy_tags
 
   lifecycle {
-    prevent_destroy = false # Set to true for production. This is a test.
+    ignore_changes  = [role_name]
+    prevent_destroy = true # Set to true for production. This is a test.
   }
 }
 
@@ -37,12 +39,13 @@ resource "aws_organizations_account" "production" {
 
   role_name = "OrganizationAccountAccessRole"
 
-  close_on_deletion = true # Set to false for production
+  close_on_deletion = false # Set to false for production
 
   tags = var.policy_tags
 
   lifecycle {
-    prevent_destroy = false # Set to true for production. This is a test.
+    ignore_changes  = [role_name]
+    prevent_destroy = true # Set to true for production. This is a test.
   }
 }
 
@@ -53,11 +56,12 @@ resource "aws_organizations_account" "nonproduction" {
 
   role_name = "OrganizationAccountAccessRole"
 
-  close_on_deletion = true # Set to false for production
+  close_on_deletion = false # Set to false for production
 
   tags = var.policy_tags
 
   lifecycle {
-    prevent_destroy = false # Set to true for production. This is a test.
+    ignore_changes  = [role_name]
+    prevent_destroy = true # Set to true for production. This is a test.
   }
 }

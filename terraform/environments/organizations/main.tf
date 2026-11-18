@@ -1,3 +1,23 @@
+import {
+  to = module.organizations.aws_organizations_account.workloads
+  id = "982498569597"
+}
+
+import {
+  to = module.organizations.aws_organizations_account.production
+  id = "161132473946"
+}
+
+import {
+  to = module.organizations.aws_organizations_account.nonproduction
+  id = "414473839373"
+}
+
+import {
+  to = module.organizations.aws_organizations_account.infrastructure
+  id = "503676493255"
+}
+
 # Organizations module
 module "organizations" {
   source = "../../modules/organizations"
