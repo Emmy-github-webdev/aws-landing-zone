@@ -45,7 +45,7 @@ resource "aws_route53_resolver_firewall_rule_group_association" "infrastructure"
   vpc_id                 = aws_vpc.infrastructure.id
   priority               = 101
 
-  mutation_protection = "ENABLED"
+  mutation_protection = "DISABLED" # ENABLED for prodution
 }
 
 # Production account
@@ -96,7 +96,7 @@ resource "aws_route53_resolver_firewall_rule_group_association" "production" {
   vpc_id                 = aws_vpc.production.id
   priority               = 101
 
-  mutation_protection = "ENABLED"
+  mutation_protection = "DISABLED" # ENABLED for prodution
 }
 
 
@@ -149,5 +149,5 @@ resource "aws_route53_resolver_firewall_rule_group_association" "nonproduction" 
   vpc_id                 = aws_vpc.nonproduction.id
   priority               = 101
 
-  mutation_protection = "ENABLED"
+  mutation_protection = "DISABLED" # ENABLED for prodution
 }
