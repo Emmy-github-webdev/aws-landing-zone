@@ -19,12 +19,12 @@ locals {
 }
 
 
-locals {
-  sso_instance_arn = tolist(
-    data.aws_ssoadmin_instances.current.arns
-  )[0]
+# locals {
+#   sso_instance_arn = tolist(
+#     data.aws_ssoadmin_instances.current.arns
+#   )[0]
 
-  identity_store_id = tolist(
-    data.aws_ssoadmin_instances.current.identity_store_ids
-  )[0]
-}
+#   identity_store_id = tolist(
+#     data.aws_ssoadmin_instances.current.identity_store_ids
+#   )[0]
+# }
