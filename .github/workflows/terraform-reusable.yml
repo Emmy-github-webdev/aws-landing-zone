@@ -164,7 +164,7 @@ jobs:
             -out=tfplan
 
       - name: Show Plan Output
-        run: terraform state list | grep route_table_association
+        run: terraform state show 'module.networking.aws_route_table_association.egress_public_az["use1-az1"]'
 
       # Upload plan
       - name: Upload Terraform Plan
