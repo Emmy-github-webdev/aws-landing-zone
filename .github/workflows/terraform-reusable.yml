@@ -163,43 +163,27 @@ jobs:
             -lock-timeout=5m \
             -out=tfplan
 
-      - name: Show Plan Output 1
-        run: |
-          terraform state list | grep 'module.networking'
 
-
-      - name: Inspect Infrastructure Networking
+      - name: Verify networking resources across accounts
         shell: bash
         run: |
-          echo "========== VPCS =========="
+          echo "Checking Infrastructure account"
+          aws ec2 describe-vpcs --region us-east-1
+
+          echo "Checking Production account"
           aws ec2 describe-vpcs \
             --region us-east-1 \
-            --output table
+            --profile production
 
-          echo "========== SUBNETS =========="
-          aws ec2 describe-subnets \
+          echo "Checking NonProduction account"
+          aws ec2 describe-vpcs \
             --region us-east-1 \
-            --query 'Subnets[].{SubnetId:SubnetId,VpcId:VpcId,AZ:AvailabilityZone,Cidr:CidrBlock,State:State}' \
-            --output table
+            --profile nonproduction
 
-          echo "========== ROUTE TABLES =========="
-          aws ec2 describe-route-tables \
-            --region us-east-1 \
-            --query 'RouteTables[].{RouteTableId:RouteTableId,VpcId:VpcId,Associations:Associations[].{SubnetId:SubnetId,AssociationId:RouteTableAssociationId,Main:Main}}' \
-            --output json
-
-          echo "========== INTERNET GATEWAYS =========="
-          aws ec2 describe-internet-gateways \
-            --region us-east-1 \
-            --output table
-
-          echo "========== NAT GATEWAYS =========="
-          aws ec2 describe-nat-gateways \
-            --region us-east-1 \
-            --query 'NatGateways[].{NatGatewayId:NatGatewayId,VpcId:VpcId,State:State,SubnetId:SubnetId}' \
-            --output table
-
-
+      - name: Show Plan Output 1
+        run: |
+          terraform plan -refresh-only
+          
       # Upload plan
       - name: Upload Terraform Plan
         if: steps.action.outputs.action == 'plan' || steps.action.outputs.action == 'apply'
