@@ -47,6 +47,11 @@ output "production_account_id" {
   value       = aws_organizations_account.production.id
 }
 
+output "workloads_account_id" {
+  description = "Workloads AWS account ID"
+  value       = aws_organizations_account.workloads.id
+}
+
 output "nonproduction_account_id" {
   description = "NonProduction AWS account ID"
   value       = aws_organizations_account.nonproduction.id

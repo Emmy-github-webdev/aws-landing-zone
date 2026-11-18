@@ -48,3 +48,9 @@ variable "policy_tags" {
   description = "Tags applied to custom SCPs"
   type        = map(string)
 }
+
+variable "network_account_ids" {
+  description = "AWS account IDs for network troubleshooting access"
+
+  type = map(string)
+}
