@@ -163,27 +163,11 @@ jobs:
             -lock-timeout=5m \
             -out=tfplan
 
-
-      - name: Verify networking resources across accounts
-        shell: bash
-        run: |
-          echo "Checking Infrastructure account"
-          aws ec2 describe-vpcs --region us-east-1
-
-          echo "Checking Production account"
-          aws ec2 describe-vpcs \
-            --region us-east-1 \
-            --profile production
-
-          echo "Checking NonProduction account"
-          aws ec2 describe-vpcs \
-            --region us-east-1 \
-            --profile nonproduction
-
       - name: Show Plan Output 1
         run: |
-          terraform plan -refresh-only
-          
+          terraform plan -refresh-only -out=tf-refresh.tfplan \
+          terraform show tf-refresh.tfplan
+
       # Upload plan
       - name: Upload Terraform Plan
         if: steps.action.outputs.action == 'plan' || steps.action.outputs.action == 'apply'
