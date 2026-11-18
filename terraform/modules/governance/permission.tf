@@ -1,7 +1,7 @@
 
 resource "aws_ssoadmin_permission_set" "network_troubleshooter" {
-  name             = "NetworkTroubleshooter"
-  description      = "Read-only network troubleshooting across Landing Zone accounts"
+  name        = "NetworkTroubleshooter"
+  description = "Read-only network troubleshooting across Landing Zone accounts"
 
   instance_arn     = local.sso_instance_arn
   session_duration = "PT4H"
