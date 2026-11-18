@@ -9,10 +9,10 @@ module "governance" {
   production_ou_id     = local.production_ou_id
   nonproduction_ou_id  = local.nonproduction_ou_id
   network_account_ids = {
-    infrastructure = local.infrastructure_ou_id
-    workloads      = local.workloads_ou_id
-    production     = local.production_ou_id
-    nonproduction  = local.nonproduction_ou_id
+    infrastructure = module.organization.infrastructure_account_id
+    workloads      = module.organization.workloads_account_id
+    production     = module.organization.production_account_id
+    nonproduction  = module.organization.nonproduction_account_id
   }
 
   sandbox_ou_id = var.sandbox_ou_id
