@@ -163,8 +163,11 @@ jobs:
             -lock-timeout=5m \
             -out=tfplan
 
-      - name: Show Plan Output
+      - name: Show Plan Output 1
         run: terraform state show 'module.networking.aws_route_table_association.egress_public_az["use1-az1"]'
+
+      - name: Show Plan Output 2
+        run: terraform state show 'module.networking.aws_route_table_association.egress_public["use1-az2"]'
 
       # Upload plan
       - name: Upload Terraform Plan
