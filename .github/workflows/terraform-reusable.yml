@@ -135,6 +135,9 @@ jobs:
         run: terraform validate
 
       # Refresh
+      - name: Remove state
+        run: terraform force-unlock 4bc3c80d-3841-08b8-5ac3-60d208dea2ea
+        
       - name: refresh
         run: terraform plan -refresh-only
 
