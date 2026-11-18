@@ -98,7 +98,7 @@ variable "policy_tags" {
 variable "dns_archive_retention_days" {
   description = "Approved S3 Object Lock compliance retention period"
   type        = number
-  default = 365
+  default     = 365
 
   validation {
     condition = (
