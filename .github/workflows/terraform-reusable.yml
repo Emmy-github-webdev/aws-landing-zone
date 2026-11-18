@@ -135,11 +135,10 @@ jobs:
         run: terraform validate
 
       # Refresh
-      - name: Terraform Refresh
-        run: terraform apply -refresh-only
+      - name: refresh
+        run: terraform plan -refresh-only
 
-      # Refresh
-      - name: Terraform Apply Refresh
+      - name: Terraform Refresh
         run: terraform apply -refresh-only
 
       # Terraform operation
