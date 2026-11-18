@@ -166,24 +166,37 @@ jobs:
       - name: Show Plan Output 1
         run: terraform state show 'module.networking.aws_route_table_association.egress_public_az["use1-az1"]'
 
-      - name: Inspect Infrastructure VPCs
+
+      - name: Inspect Infrastructure Networking
         shell: bash
         run: |
-          echo "=============================================="
-          echo "Checking VPCs in Infrastructure account"
-          echo "=============================================="
-
+          echo "========== VPCS =========="
           aws ec2 describe-vpcs \
             --region us-east-1 \
-            --query 'Vpcs[].{VpcId:VpcId,State:State,Cidr:CidrBlock}' \
             --output table
-            
-      - name: Inspect route table
-        shell: bash
-        run: |
-            aws ec2 describe-route-tables \
+
+          echo "========== SUBNETS =========="
+          aws ec2 describe-subnets \
             --region us-east-1 \
-             --query 'RouteTables[].{RouteTableId:RouteTableId,VpcId:VpcId,Associations:Associations[].{SubnetId:SubnetId,AssociationId:RouteTableAssociationId,Main:Main}}'
+            --query 'Subnets[].{SubnetId:SubnetId,VpcId:VpcId,AZ:AvailabilityZone,Cidr:CidrBlock,State:State}' \
+            --output table
+
+          echo "========== ROUTE TABLES =========="
+          aws ec2 describe-route-tables \
+            --region us-east-1 \
+            --query 'RouteTables[].{RouteTableId:RouteTableId,VpcId:VpcId,Associations:Associations[].{SubnetId:SubnetId,AssociationId:RouteTableAssociationId,Main:Main}}' \
+            --output json
+
+          echo "========== INTERNET GATEWAYS =========="
+          aws ec2 describe-internet-gateways \
+            --region us-east-1 \
+            --output table
+
+          echo "========== NAT GATEWAYS =========="
+          aws ec2 describe-nat-gateways \
+            --region us-east-1 \
+            --query 'NatGateways[].{NatGatewayId:NatGatewayId,VpcId:VpcId,State:State,SubnetId:SubnetId}' \
+            --output table
 
 
       # Upload plan
