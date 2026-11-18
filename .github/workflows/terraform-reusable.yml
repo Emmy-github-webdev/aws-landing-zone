@@ -165,17 +165,7 @@ jobs:
 
       - name: Show Plan Output 1
         run: |
-          aws ec2 describe-transit-gateways \
-          --region us-east-1 \
-          --query 'TransitGateways[].{Id:TransitGatewayId,State:State,Owner:OwnerId}' \
-          --output table
-
-      - name: Show Plan Output 2
-        run: |
-            aws ec2 describe-vpc-endpoints \
-              --region us-east-1 \
-              --query 'VpcEndpoints[].{Id:VpcEndpointId,VpcId:VpcId,Service:ServiceName,State:State}' \
-              --output table
+          terraform state list | grep 'module.networking'
 
 
       - name: Inspect Infrastructure Networking
