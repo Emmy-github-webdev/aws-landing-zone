@@ -10,6 +10,7 @@ resource "aws_organizations_account" "infrastructure" {
   tags = var.policy_tags
 
   lifecycle {
+    ignore_changes  = [role_name]
     prevent_destroy = false # Set to true for production. This is a test.
   }
 }
@@ -26,6 +27,7 @@ resource "aws_organizations_account" "workloads" {
   tags = var.policy_tags
 
   lifecycle {
+    ignore_changes  = [role_name]
     prevent_destroy = false # Set to true for production. This is a test.
   }
 }
@@ -42,6 +44,7 @@ resource "aws_organizations_account" "production" {
   tags = var.policy_tags
 
   lifecycle {
+    ignore_changes  = [role_name]
     prevent_destroy = false # Set to true for production. This is a test.
   }
 }
@@ -58,6 +61,7 @@ resource "aws_organizations_account" "nonproduction" {
   tags = var.policy_tags
 
   lifecycle {
+    ignore_changes  = [role_name]
     prevent_destroy = false # Set to true for production. This is a test.
   }
 }
