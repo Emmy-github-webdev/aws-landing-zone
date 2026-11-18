@@ -163,9 +163,6 @@ jobs:
             -lock-timeout=5m \
             -out=tfplan
 
-      - name: Show Plan Output
-        run: terraform show tfplan
-
       # Upload plan
       - name: Upload Terraform Plan
         if: steps.action.outputs.action == 'plan' || steps.action.outputs.action == 'apply'

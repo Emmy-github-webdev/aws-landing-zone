@@ -98,14 +98,14 @@ variable "policy_tags" {
 variable "dns_archive_retention_days" {
   description = "Approved S3 Object Lock compliance retention period"
   type        = number
+  default     = 365
 
   validation {
     condition = (
-      var.dns_archive_retention_days >= 90 &&
-      var.dns_archive_retention_days <= 36500
+      var.dns_archive_retention_days > var.dns_archive_transition_days
     )
 
-    error_message = "DNS archive retention must be between 90 and 36500 days."
+    error_message = "DNS archive retention must be greater than the Glacier transition period."
   }
 }
 
