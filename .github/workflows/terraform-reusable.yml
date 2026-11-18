@@ -165,7 +165,10 @@ jobs:
 
       - name: Show Plan Output 1
         run: |
-          terraform plan -refresh-only -out=tf-refresh.tfplan \
+          terraform plan -refresh-only -out=tf-refresh.tfplan 
+
+      - name: Show Plan Output 2
+        run: |
           terraform show tf-refresh.tfplan
 
       # Upload plan
