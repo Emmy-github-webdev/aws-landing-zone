@@ -34,6 +34,10 @@ output "nonproduction_account_id" {
   value = module.organizations.nonproduction_account_id
 }
 
+output "workloads_account_id" {
+  value = module.organizations.workloads_account_id
+}
+
 output "infrastructure_ou_id" {
   value = module.organizations.infrastructure_ou_id
 }
