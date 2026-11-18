@@ -49,8 +49,8 @@ variable "policy_tags" {
   type        = map(string)
 }
 
-variable "network_account_ids" {
-  description = "AWS account IDs for network troubleshooting access"
+# variable "network_account_ids" {
+#   description = "AWS account IDs for network troubleshooting access"
 
-  type = map(string)
-}
+#   type = map(string)
+# }
