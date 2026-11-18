@@ -130,7 +130,10 @@ locals {
     data.aws_availability_zones.available.zone_ids
   )
 
-  firewall_endpoint_ids = var.enable_centralized_egress ? {
+  firewall_endpoint_ids = (
+    var.enable_centralized_egress &&
+    length(aws_networkfirewall_firewall.egress) > 0
+    ) ? {
     for az_id in keys(local.egress_az_indices) :
     az_id => one([
       for sync_state in aws_networkfirewall_firewall.egress[0].firewall_status[0].sync_states :
