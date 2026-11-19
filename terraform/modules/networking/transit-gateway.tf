@@ -126,6 +126,11 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "production" {
       Name = "lz-production-attachment"
     }
   )
+
+  depends_on = [
+    aws_ram_resource_association.transit_gateway,
+    aws_ram_principal_association.organization
+  ]
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "nonproduction" {
@@ -144,6 +149,11 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "nonproduction" {
       Name = "lz-nonproduction-attachment"
     }
   )
+
+  depends_on = [
+    aws_ram_resource_association.transit_gateway,
+    aws_ram_principal_association.organization
+  ]
 }
 
 

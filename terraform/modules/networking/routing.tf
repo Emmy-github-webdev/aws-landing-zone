@@ -149,6 +149,10 @@ resource "aws_route" "production_to_infrastructure" {
   route_table_id         = aws_route_table.production_private.id
   destination_cidr_block = var.infrastructure_vpc_cidr
   transit_gateway_id     = aws_ec2_transit_gateway.main.id
+
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.production
+  ]
 }
 
 # NonProduction -> Infrastructure
@@ -159,6 +163,10 @@ resource "aws_route" "nonproduction_to_infrastructure" {
   route_table_id         = aws_route_table.nonproduction_private.id
   destination_cidr_block = var.infrastructure_vpc_cidr
   transit_gateway_id     = aws_ec2_transit_gateway.main.id
+
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.nonproduction
+  ]
 }
 
 # Infrastructure -> Production

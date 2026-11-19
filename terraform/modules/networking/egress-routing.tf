@@ -106,6 +106,10 @@ resource "aws_route" "production_default_egress" {
   destination_cidr_block = "0.0.0.0/0"
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
+
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.production
+  ]
 }
 
 resource "aws_route" "nonproduction_default_egress" {
@@ -117,6 +121,10 @@ resource "aws_route" "nonproduction_default_egress" {
   destination_cidr_block = "0.0.0.0/0"
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
+
+  depends_on = [
+    aws_ec2_transit_gateway_vpc_attachment.nonproduction
+  ]
 }
 
 # Create per-AZ route tables
