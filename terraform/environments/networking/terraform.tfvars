@@ -12,7 +12,7 @@ nonproduction_vpc_cidr  = "10.30.0.0/16"
 availability_zone_ids = [
   "use1-az1",
   "use1-az2",
-  "use1-az3"
+  "use1-az4"
 ]
 firewall_log_retention_days = 90
 firewall_allowed_tcp_ports = [
