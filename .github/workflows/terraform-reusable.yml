@@ -138,18 +138,33 @@ jobs:
         run: |
           aws sts get-caller-identity
 
-      - name: Check Transit Gateway
+      - name: Check Infrastructure AWS resources
         run: |
+          infrastructure_account_id="$(terraform console -no-color <<< 'local.infrastructure_account_id' | tr -d '"')"
+          infrastructure_role_arn="arn:aws:iam::${infrastructure_account_id}:role/OrganizationAccountAccessRole"
+
+          credentials="$(aws sts assume-role \
+            --role-arn "$infrastructure_role_arn" \
+            --role-session-name terraform-infrastructure-diagnostic \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+            --output text)"
+          read -r AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN <<< "$credentials"
+          export AWS_ACCESS_KEY_ID AWS_SECRET_ACCESS_KEY AWS_SESSION_TOKEN
+
+          caller_account_id="$(aws sts get-caller-identity --query Account --output text)"
+          if [ "$caller_account_id" != "$infrastructure_account_id" ]; then
+            echo "Expected infrastructure account $infrastructure_account_id, got $caller_account_id" >&2
+            exit 1
+          fi
+
+          aws sts get-caller-identity
           aws ec2 describe-transit-gateways \
-            --region us-east-1 \
+            --region "${{ inputs.aws_region }}" \
             --transit-gateway-ids tgw-049c2d6f908c0bff1 \
             --query "TransitGateways[0].{Id:TransitGatewayId,State:State,Owner:OwnerId}" \
             --output table
-
-      - name: Check VPC Route Table
-        run: |
           aws ec2 describe-route-tables \
-            --region us-east-1 \
+            --region "${{ inputs.aws_region }}" \
             --route-table-ids rtb-0f72a6706b676ff05 \
             --query "RouteTables[0].{Vpc:VpcId,Owner:OwnerId}" \
             --output table
