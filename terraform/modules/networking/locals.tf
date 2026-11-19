@@ -47,7 +47,7 @@ locals {
 
   subnet_tiers = {
     private  = 0
-    isolated = length(var.availability_zones)
+    isolated = max(6, length(var.availability_zones))
   }
 
   subnet_cidrs = {
