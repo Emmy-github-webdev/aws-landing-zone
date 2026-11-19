@@ -190,16 +190,6 @@ resource "aws_route_table" "egress_public_az" {
   )
 }
 
-resource "aws_route_table_association" "egress_public_az" {
-  provider = aws.infrastructure
-
-  for_each = var.enable_centralized_egress ? local.egress_az_indices : {}
-
-  subnet_id      = aws_subnet.egress_public[each.key].id
-  route_table_id = aws_route_table.egress_public_az[each.key].id
-}
-
-
 resource "aws_route" "egress_tgw_to_firewall" {
   provider = aws.infrastructure
 
