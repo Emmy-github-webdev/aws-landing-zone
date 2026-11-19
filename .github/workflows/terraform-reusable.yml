@@ -134,6 +134,26 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Verify AWS identity
+        run: |
+          aws sts get-caller-identity
+
+      - name: Check Transit Gateway
+        run: |
+          aws ec2 describe-transit-gateways \
+            --region us-east-1 \
+            --transit-gateway-ids tgw-049c2d6f908c0bff1 \
+            --query "TransitGateways[0].{Id:TransitGatewayId,State:State,Owner:OwnerId}" \
+            --output table
+
+      - name: Check VPC Route Table
+        run: |
+          aws ec2 describe-route-tables \
+            --region us-east-1 \
+            --route-table-ids rtb-0f72a6706b676ff05 \
+            --query "RouteTables[0].{Vpc:VpcId,Owner:OwnerId}" \
+            --output table
+
       # Terraform operation
       - name: Determine Terraform Action
         id: action
