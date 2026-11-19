@@ -139,10 +139,20 @@ jobs:
           aws sts get-caller-identity
 
       - name: Check Infrastructure AWS resources
+        env:
+          TF_STATE_BUCKET: ${{ vars.TF_STATE_BUCKET }}
         run: |
-          infrastructure_account_id="$(terraform console -no-color <<< 'local.infrastructure_account_id' | tr -d '"')"
+          set -euo pipefail
+
+          echo "Reading infrastructure account ID from Organizations state"
+          infrastructure_account_id="$(
+            aws s3 cp "s3://${TF_STATE_BUCKET}/landing-zone/organizations/terraform.tfstate" - \
+              --region "${{ inputs.aws_region }}" |
+              jq -er '.outputs.infrastructure_account_id.value'
+          )"
           infrastructure_role_arn="arn:aws:iam::${infrastructure_account_id}:role/OrganizationAccountAccessRole"
 
+          echo "Assuming infrastructure role for AWS resource checks"
           credentials="$(aws sts assume-role \
             --role-arn "$infrastructure_role_arn" \
             --role-session-name terraform-infrastructure-diagnostic \
