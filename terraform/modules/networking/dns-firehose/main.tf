@@ -165,24 +165,34 @@ resource "aws_iam_role" "cloudwatch_to_firehose" {
   tags = var.common_tags
 }
 
-resource "aws_iam_role_policy" "cloudwatch_to_firehose" {
-  name = "lz-dns-cloudwatch-firehose-write"
-  role = aws_iam_role.cloudwatch_to_firehose.id
+resource "aws_iam_role" "cloudwatch_to_firehose" {
+  name = "lz-dns-cloudwatch-to-firehose"
 
-  policy = jsonencode({
+  assume_role_policy = jsonencode({
     Version = "2012-10-17"
 
     Statement = [{
       Effect = "Allow"
 
-      Action = [
-        "firehose:PutRecord",
-        "firehose:PutRecordBatch"
-      ]
+      Principal = {
+        Service = "logs.${data.aws_region.current.region}.amazonaws.com"
+      }
 
-      Resource = aws_kinesis_firehose_delivery_stream.dns.arn
+      Action = "sts:AssumeRole"
+
+      Condition = {
+        StringEquals = {
+          "aws:SourceAccount" = data.aws_caller_identity.current.account_id
+        }
+
+        ArnLike = {
+          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:*"
+        }
+      }
     }]
   })
+
+  tags = var.common_tags
 }
 
 
