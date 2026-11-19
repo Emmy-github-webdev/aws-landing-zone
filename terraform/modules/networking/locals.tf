@@ -47,7 +47,7 @@ locals {
 
   subnet_tiers = {
     private  = 0
-    isolated = 4
+    isolated = length(var.availability_zones)
   }
 
   subnet_cidrs = {
@@ -59,7 +59,7 @@ locals {
         )
 
         isolated = cidrsubnet(
-          var.infrastructure_vpc_cidr, 4, index + 4
+          var.infrastructure_vpc_cidr, 4, index + local.subnet_tiers.isolated
         )
       }
     }
@@ -72,7 +72,7 @@ locals {
         )
 
         isolated = cidrsubnet(
-          var.production_vpc_cidr, 4, index + 4
+          var.production_vpc_cidr, 4, index + local.subnet_tiers.isolated
         )
       }
     }
@@ -85,7 +85,7 @@ locals {
         )
 
         isolated = cidrsubnet(
-          var.nonproduction_vpc_cidr, 4, index + 4
+          var.nonproduction_vpc_cidr, 4, index + local.subnet_tiers.isolated
         )
       }
     }
