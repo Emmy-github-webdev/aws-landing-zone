@@ -156,7 +156,7 @@ resource "aws_iam_role" "cloudwatch_to_firehose" {
         }
 
         ArnLike = {
-          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:${var.source_log_group_name}:*"
+          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:*"
         }
       }
     }]
@@ -165,34 +165,24 @@ resource "aws_iam_role" "cloudwatch_to_firehose" {
   tags = var.common_tags
 }
 
-resource "aws_iam_role" "cloudwatch_to_firehose" {
-  name = "lz-dns-cloudwatch-to-firehose"
+resource "aws_iam_role_policy" "cloudwatch_to_firehose" {
+  name = "lz-dns-cloudwatch-firehose-write"
+  role = aws_iam_role.cloudwatch_to_firehose.id
 
-  assume_role_policy = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17"
 
     Statement = [{
       Effect = "Allow"
 
-      Principal = {
-        Service = "logs.${data.aws_region.current.region}.amazonaws.com"
-      }
+      Action = [
+        "firehose:PutRecord",
+        "firehose:PutRecordBatch"
+      ]
 
-      Action = "sts:AssumeRole"
-
-      Condition = {
-        StringEquals = {
-          "aws:SourceAccount" = data.aws_caller_identity.current.account_id
-        }
-
-        ArnLike = {
-          "aws:SourceArn" = "arn:aws:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:*"
-        }
-      }
+      Resource = aws_kinesis_firehose_delivery_stream.dns.arn
     }]
   })
-
-  tags = var.common_tags
 }
 
 
