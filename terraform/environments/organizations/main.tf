@@ -18,6 +18,8 @@ import {
   id = "503676493255"
 }
 
+resource "aws_ram_sharing_with_organization" "enabled" {}
+
 # Organizations module
 module "organizations" {
   source = "../../modules/organizations"
