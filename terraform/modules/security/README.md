@@ -124,9 +124,12 @@ provider roles for the three accounts, and deploys the module in the primary
 and secondary Regions. Its remote state key is
 `landing-zone/security/terraform.tfstate`.
 
-The GitHub Actions workflow runs Terraform for changes to the security module
-or environment; see
-[`security.yml`](../../../.github/workflows/security.yml). Before applying:
+The GitHub Actions workflow is
+[`security.yml`](../../../.github/workflows/security.yml). Its current module
+and environment path filters omit the repository's `terraform/` directory, so
+changes to those files alone do not trigger it. See the
+[workflow documentation](../../../.github/workflows/README.md) before relying
+on automatic runs. Before applying:
 
 1. Verify the execution credentials and role ARNs target the intended
    Management, Security, and Logging accounts.

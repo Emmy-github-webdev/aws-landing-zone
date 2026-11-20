@@ -59,9 +59,12 @@ All inputs below are required; the module does not set defaults.
 
 The environment wrapper is [`terraform/environments/governance`](../../environments/governance/).
 It supplies organization and OU identifiers, approved-region configuration,
-and common tags to this module. The GitHub Actions workflow runs Terraform for
-changes to the governance module or environment; see
-[`governance.yml`](../../../.github/workflows/governance.yml).
+and common tags to this module. The GitHub Actions workflow is
+[`governance.yml`](../../../.github/workflows/governance.yml). Its current
+module and environment path filters omit the repository's `terraform/`
+directory, so changes to those files alone do not trigger it. See the
+[workflow documentation](../../../.github/workflows/README.md) before relying
+on automatic runs.
 
 Before deploying:
 
