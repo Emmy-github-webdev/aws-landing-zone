@@ -7,3 +7,5 @@ Terraform configuration for an AWS multi-account landing zone.
 - [Governance module](./terraform/modules/governance/README.md): current
   Service Control Policies, deployment details, and the proposed governance
   roadmap.
+- [Security module](./terraform/modules/security/README.md): deployed security
+  services, regional behavior, account layout, and operational notes.
