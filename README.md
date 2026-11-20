@@ -10,6 +10,79 @@ central security services, and shared networking.
 > regions, permissions, policy effects, network paths, retention settings, and
 > workflow protections in your own AWS organization before applying changes.
 
+## Compliance and assurance scope
+
+This repository is framework-neutral. It does not claim certification,
+attestation, or compliance with SOC 2, ISO/IEC 27001, NIST, PCI DSS, or any
+other regulatory or industry framework. Deploying these resources alone does
+not demonstrate compliance. The organization remains responsible for defining
+applicable requirements, assessing control design and operation, and
+maintaining evidence for its auditors and customers.
+
+Use the guide as an infrastructure control baseline, then map each applicable
+requirement to an accountable control owner, the actual implementation, and
+evidence from your AWS accounts and change-management systems. Validate
+framework-specific requirements with your compliance and legal teams. AWS
+Control Tower and AWS security services provide capabilities; they do not
+transfer the customer's responsibilities under the AWS Shared Responsibility
+Model.
+
+## Control ownership and evidence
+
+Assign named owners and retain evidence in an approved, access-controlled
+system. The examples below are evidence candidates, not evidence generated or
+retained automatically by this repository.
+
+| Control objective | Accountable owner | Evidence to retain |
+| --- | --- | --- |
+| Identity lifecycle, least privilege, and privileged access | Identity and cloud platform teams | Role and trust-policy reviews, access approvals, MFA and break-glass tests, access review records, and IAM Access Analyzer findings with disposition |
+| Change authorization and separation of duties | Change owner and independent approver | Change record, reviewed pull request, exact plan and approval, workflow run, deployment result, and post-deployment verification |
+| Organization guardrails and exceptions | Cloud governance team | Effective policy attachments, test results, approved exceptions with owner and expiry, and periodic policy review |
+| Audit logging and security monitoring | Security operations team | CloudTrail delivery and integrity checks, security-service coverage, alert triage records, Config recorder coverage, and escalation evidence |
+| Data protection and retention | Data owner and platform team | Data classification, bucket policies, encryption and retention settings, access reviews, recovery tests, and approved retention exceptions |
+| Network security and segmentation | Network security team | Approved CIDR inventory, route and firewall reviews, connectivity tests, DNS policy tests, and centralized log delivery checks |
+| Resilience and incident response | Service owner and security operations | Recovery procedures, backup/restore test results, incident runbooks, escalation contacts, and exercise outcomes |
+
+For each retained evidence item, record its source, collection date, account and
+Region, control owner, review status, and retention period. Keep evidence
+tamper-resistant where required by policy. Do not place credentials, customer
+data, raw security logs, or unreviewed Terraform plans in the repository.
+Treat state files and saved plans as sensitive because they may contain
+infrastructure details or secret values.
+
+## Change control baseline
+
+Apply the following controls to infrastructure changes, especially changes
+that affect production accounts, organization policies, audit data, or network
+routing:
+
+1. Link the change to an approved request that identifies the purpose, scope,
+   affected accounts and Regions, risk, owner, validation plan, and rollback or
+   recovery approach.
+2. Require peer review by the relevant platform, security, network, or
+   governance owner. Review policy scope, identity permissions, data handling,
+   resource replacement, and destructive effects—not only whether a plan
+   completes successfully.
+3. Verify that the plan targets the intended AWS organization, account,
+   Region, and remote-state key. Approval must apply to the exact plan that is
+   applied; regenerate and re-review it if the configuration or state changes.
+4. Separate request, approval, and deployment responsibilities where required
+   by organizational policy. Restrict production and destructive operations
+   to explicitly authorized identities.
+5. Capture the change record, review and approval, workflow run, plan reference,
+   deployment result, and validation outcome in the designated evidence
+   system. Apply the organization's retention and access controls to these
+   records.
+6. After deployment, verify the expected behavior in AWS, check for drift or
+   failed service integrations, and record any exception with a named owner,
+   compensating control, and review or expiry date.
+
+The current workflows do not enforce this full baseline by themselves. In
+particular, a retained plan artifact is not an approval gate for the apply in
+that run, and pushes to `main` can select apply by default. Configure and test
+the required GitHub Environment protections and workflow behavior before
+using these workflows as a regulated change-control mechanism.
+
 ## Architecture at a glance
 
 The current design separates responsibilities across these accounts and
@@ -184,13 +257,18 @@ control before onboarding production workloads.
 Resolve these repository-specific items before treating the deployment as
 production-ready:
 
-- The state bootstrap currently has a testing-oriented `prevent_destroy`
-  setting. Review state-bucket deletion protection and recovery controls before
-  using it for production state.
+- The state bootstrap currently uses SSE-S3 encryption and has a
+  testing-oriented `prevent_destroy` setting. Decide whether your policy
+  requires customer-managed key controls, enable appropriate deletion
+  protection, and test state recovery before production use.
 - The Governance module's current Region restriction policy is hard-coded;
   changing the `approved_regions` input alone does not update that policy.
   Review the policy document and its global-service exceptions before
   attachment.
+- The Security module's `cloudtrail_retention_days` input currently does not
+  configure S3 lifecycle expiration. Define, implement, and verify retention
+  and noncurrent-version handling against your records policy before relying on
+  it for audit retention.
 - The GitHub Actions path filters currently omit the `terraform/` prefix for
   environment files. Changes to Terraform files may therefore not trigger the
   expected workflow automatically. The deployment behavior and protections
