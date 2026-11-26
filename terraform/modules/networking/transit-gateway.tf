@@ -85,6 +85,21 @@ resource "aws_ec2_transit_gateway_route_table" "infrastructure" {
   )
 }
 
+resource "aws_ec2_transit_gateway_route_table" "onpremises" {
+  provider = aws.infrastructure
+
+  count = var.enable_onpremises_vpn ? 1 : 0
+
+  transit_gateway_id = aws_ec2_transit_gateway.main.id
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name = "lz-onpremises-tgw-rt"
+    }
+  )
+}
+
 # Transist gateway attachment
 
 

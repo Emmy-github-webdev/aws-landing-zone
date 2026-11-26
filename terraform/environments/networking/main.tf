@@ -29,6 +29,11 @@ module "networking" {
   enable_centralized_egress = var.enable_centralized_egress
   egress_vpc_cidr           = var.egress_vpc_cidr
 
+  enable_onpremises_vpn          = var.enable_onpremises_vpn
+  onpremises_customer_gateway_ip = var.onpremises_customer_gateway_ip
+  onpremises_bgp_asn             = var.onpremises_bgp_asn
+  onpremises_cidrs               = var.onpremises_cidrs
+
   firewall_home_net_cidrs = var.firewall_home_net_cidrs
 
   firewall_log_retention_days = var.firewall_log_retention_days

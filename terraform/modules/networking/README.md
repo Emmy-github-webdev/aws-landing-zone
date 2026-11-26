@@ -57,6 +57,82 @@ configured TCP and UDP ports (and TCP/53), and then drop other IP traffic.
 Review these values carefully: they define outbound access. Egress and firewall
 logging resources are conditional on `enable_centralized_egress`.
 
+### On-premises Site-to-Site VPN
+
+The optional `enable_onpremises_vpn` setting creates an AWS Customer Gateway
+and a two-tunnel AWS Site-to-Site VPN attached to the central Transit Gateway.
+It uses BGP over both IPsec tunnels and the existing centralized-egress VPC
+and Network Firewall. The VPN attachment propagates BGP-learned on-premises
+routes into the inspection Transit Gateway route table. Routes for the
+configured on-premises CIDRs direct traffic from the private route tables of
+all three VPCs through the inspection attachment; isolated subnet route tables
+remain isolated. The VPN's Transit Gateway route table sends AWS VPC traffic
+to the inspection VPC, so both directions traverse the firewall. The firewall
+permits ICMP between the configured on-premises and AWS VPC CIDRs; other
+on-premises protocols remain denied by its default policy until explicitly
+allowed.
+
+Before enabling it, set these values in
+[`terraform/environments/networking/terraform.tfvars`](../../environments/networking/terraform.tfvars):
+
+```hcl
+enable_onpremises_vpn          = true
+onpremises_customer_gateway_ip = "203.0.113.10" # Replace with the device's static public IPv4
+onpremises_bgp_asn             = 65000          # FRR local ASN; AWS Transit Gateway ASN is 64512
+onpremises_cidrs               = ["192.168.0.0/16"] # Must match the prefixes advertised by FRR
+```
+
+Use the real public IP and CIDRs, and ensure the on-premises prefixes do not
+overlap any AWS VPC or egress CIDR. The on-premises device must have a stable,
+internet-reachable public IPv4 address. The CIDRs in `onpremises_cidrs` are
+the prefixes FRR must advertise over BGP. Keep this list aligned with the
+advertisements: it drives firewall allowances and the VPC-to-inspection routes.
+
+Run `terraform -chdir=terraform/environments/networking validate` and
+`terraform -chdir=terraform/environments/networking plan` from the repository
+root, review the routes and firewall changes, and apply only an approved plan.
+Then get the connection ID with:
+
+```powershell
+terraform -chdir=terraform/environments/networking output onpremises_vpn_connection_id
+```
+
+**On-premises device steps (manual):**
+
+1. In the AWS VPC console, open **Site-to-Site VPN Connections**, select the
+   connection whose ID Terraform returned, and download its configuration for
+   strongSwan and the matching platform/software version. It contains
+   both AWS tunnel outside IPs, IPsec/IKE settings, and tunnel pre-shared keys.
+2. The Ubuntu interface address is private and marked dynamic. Reserve
+   `192.168.2.12` on your LAN router (or configure a stable LAN address), then
+   configure the router to forward UDP/500 and UDP/4500 to that Ubuntu host.
+   The public IP `77.161.123.205` must remain assigned to the internet-facing
+   router/NAT endpoint and reachable from AWS.
+3. Install strongSwan on Ubuntu and configure both tunnels using the downloaded
+   AWS configuration. Follow its tunnel monitoring and failover settings.
+   Install FRRouting (FRR), configure BGP peers over both tunnel inside
+   addresses from the AWS configuration, use local ASN `65000` and peer ASN
+   `64512`, and advertise exactly the prefixes in `onpremises_cidrs` (currently
+   `192.168.2.0/24`). The AWS VPC CIDRs are `10.10.0.0/16`, `10.20.0.0/16`,
+   and `10.30.0.0/16`.
+4. Allow TCP/179 between FRR and the AWS tunnel inside addresses on the tunnel
+   interfaces. Enable IPv4 forwarding and permit forwarding between
+   `192.168.2.0/24` and the AWS VPC CIDRs in Ubuntu's firewall. If other LAN
+   devices need AWS access, add routes for the AWS VPC CIDRs on your LAN router
+   with `192.168.2.12` as the next hop.
+5. Permit UDP/500 and UDP/4500 between the public endpoint and the AWS tunnel
+   addresses shown in the downloaded configuration, and allow ICMP echo
+   requests/replies between the on-premises CIDR and target hosts.
+6. Test against a private IP of a host in a **private** subnet. The module
+   adds ICMP ingress to its `*-internal` security groups; if a host uses a
+   different security group, add an inbound ICMP echo-request rule from the
+   required on-premises CIDR there as well. Check the host firewall and any
+   network ACLs if ping still fails.
+
+This provisions one Customer Gateway and VPN connection for one on-premises
+device. A redundant pair of on-premises devices requires a second Customer
+Gateway/VPN design.
+
 ### DNS and DNS audit logs
 
 Route 53 Resolver inbound and outbound endpoints are in the Infrastructure VPC.
@@ -310,6 +386,9 @@ receives DNS and firewall events, that the central Kinesis stream receives
 records, and that Firehose writes objects beneath each account's S3 prefix.
 Also check the Firehose error prefix and delivery-stream metrics if objects do
 not arrive.
+For an on-premises VPN, also confirm both IPsec tunnels and BGP peers are up
+and that the advertised on-premises prefixes appear in the inspection Transit
+Gateway route table.
 
 ## Implementation notes and limits
 

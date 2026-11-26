@@ -14,6 +14,18 @@ output "egress_firewall_endpoint_ids" {
   value = module.networking.egress_firewall_endpoint_ids
 }
 
+output "onpremises_customer_gateway_id" {
+  value = module.networking.onpremises_customer_gateway_id
+}
+
+output "onpremises_vpn_connection_id" {
+  value = module.networking.onpremises_vpn_connection_id
+}
+
+output "onpremises_transit_gateway_route_table_id" {
+  value = module.networking.onpremises_transit_gateway_route_table_id
+}
+
 output "dns_inbound_resolver_ips" {
   value = module.networking.dns_inbound_resolver_ips
 }
