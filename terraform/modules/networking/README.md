@@ -100,9 +100,12 @@ terraform -chdir=terraform/environments/networking output onpremises_vpn_connect
 **On-premises device steps (manual):**
 
 1. In the AWS VPC console, open **Site-to-Site VPN Connections**, select the
-   connection whose ID Terraform returned, and download its configuration for
-   strongSwan and the matching platform/software version. It contains
-   both AWS tunnel outside IPs, IPsec/IKE settings, and tunnel pre-shared keys.
+   connection whose ID Terraform returned, and download its configuration.
+   Select **StrongSwan** if it is listed; otherwise select **Generic** rather
+   than another vendor's device profile. The sample contains the AWS tunnel
+   outside IPs, IPsec/IKE settings, and tunnel pre-shared keys. Adapt it for
+   your BGP/FRR setup as needed. AWS documents the [generic and device-specific
+   configuration files](https://docs.aws.amazon.com/vpn/latest/s2svpn/example-configuration-files.html).
 2. The Ubuntu interface address is private and marked dynamic. Reserve
    `192.168.2.12` on your LAN router (or configure a stable LAN address), then
    configure the router to forward UDP/500 and UDP/4500 to that Ubuntu host.
