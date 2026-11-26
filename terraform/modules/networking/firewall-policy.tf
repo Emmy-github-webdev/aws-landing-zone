@@ -2,6 +2,11 @@
 locals {
   firewall_home_net = var.firewall_home_net_cidrs
 
+  firewall_onpremises_icmp_rules = var.enable_onpremises_vpn ? [
+    "pass icmp $ONPREM_NET any -> $HOME_NET any (sid:4001; rev:1;)",
+    "pass icmp $HOME_NET any -> $ONPREM_NET any (sid:4002; rev:1;)"
+  ] : []
+
   firewall_allow_rules = concat(
     [
       for port in var.firewall_allowed_tcp_ports :
@@ -12,7 +17,10 @@ locals {
       "pass udp $HOME_NET any -> any ${port} (sid:${2000 + port}; rev:1;)"
     ],
     [
-      "pass tcp $HOME_NET any -> any 53 (sid:3001; rev:1;)",
+      "pass tcp $HOME_NET any -> any 53 (sid:3001; rev:1;)"
+    ],
+    local.firewall_onpremises_icmp_rules,
+    [
       "drop ip $HOME_NET any -> any any (sid:3002; rev:1;)"
     ]
   )
@@ -39,6 +47,20 @@ resource "aws_networkfirewall_rule_group" "egress" {
 
         ip_set {
           definition = local.firewall_home_net
+        }
+      }
+
+      dynamic "ip_sets" {
+        for_each = var.enable_onpremises_vpn ? {
+          onpremises = var.onpremises_cidrs
+        } : {}
+
+        content {
+          key = "ONPREM_NET"
+
+          ip_set {
+            definition = ip_sets.value
+          }
         }
       }
     }

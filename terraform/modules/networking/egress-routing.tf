@@ -69,6 +69,26 @@ resource "aws_ec2_transit_gateway_route_table_propagation" "egress_nonproduction
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.egress[0].id
 }
 
+resource "aws_ec2_transit_gateway_route_table_propagation" "egress_infrastructure" {
+  provider = aws.infrastructure
+
+  count = var.enable_onpremises_vpn ? 1 : 0
+
+  transit_gateway_attachment_id = aws_ec2_transit_gateway_vpc_attachment.infrastructure.id
+
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.egress[0].id
+}
+
+resource "aws_ec2_transit_gateway_route_table_propagation" "egress_onpremises_vpn" {
+  provider = aws.infrastructure
+
+  count = var.enable_onpremises_vpn ? 1 : 0
+
+  transit_gateway_attachment_id = aws_vpn_connection.onpremises[0].transit_gateway_attachment_id
+
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.egress[0].id
+}
+
 # Redirect spoke default routes to inspection
 
 resource "aws_ec2_transit_gateway_route" "production_default_egress" {
@@ -246,6 +266,45 @@ resource "aws_route" "firewall_to_nonproduction" {
   destination_cidr_block = var.nonproduction_vpc_cidr
 
   transit_gateway_id = aws_ec2_transit_gateway.main.id
+}
+
+resource "aws_route" "firewall_to_infrastructure" {
+  provider = aws.infrastructure
+
+  for_each = var.enable_onpremises_vpn ? local.egress_az_indices : {}
+
+  route_table_id         = aws_route_table.egress_firewall[each.key].id
+  destination_cidr_block = var.infrastructure_vpc_cidr
+
+  transit_gateway_id = aws_ec2_transit_gateway.main.id
+}
+
+resource "aws_route" "firewall_to_onpremises" {
+  provider = aws.infrastructure
+
+  for_each = var.enable_onpremises_vpn ? {
+    for pair in setproduct(
+      keys(local.egress_az_indices),
+      var.onpremises_cidrs
+      ) : "${pair[0]}-${pair[1]}" => {
+      az_id = pair[0]
+      cidr  = pair[1]
+    }
+  } : {}
+
+  route_table_id         = aws_route_table.egress_firewall[each.value.az_id].id
+  destination_cidr_block = each.value.cidr
+
+  transit_gateway_id = aws_ec2_transit_gateway.main.id
+}
+
+resource "aws_ec2_transit_gateway_route_table_association" "onpremises_vpn" {
+  provider = aws.infrastructure
+
+  count = var.enable_onpremises_vpn ? 1 : 0
+
+  transit_gateway_attachment_id  = aws_vpn_connection.onpremises[0].transit_gateway_attachment_id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.onpremises[0].id
 }
 
 # Public NAT subnet routes

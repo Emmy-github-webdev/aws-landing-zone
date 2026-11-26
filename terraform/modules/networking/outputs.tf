@@ -29,6 +29,21 @@ output "transit_gateway_attachments" {
   }
 }
 
+output "onpremises_customer_gateway_id" {
+  description = "On-premises Customer Gateway ID, if the VPN is enabled"
+  value       = try(aws_customer_gateway.onpremises[0].id, null)
+}
+
+output "onpremises_vpn_connection_id" {
+  description = "Site-to-Site VPN connection ID, if enabled"
+  value       = try(aws_vpn_connection.onpremises[0].id, null)
+}
+
+output "onpremises_transit_gateway_route_table_id" {
+  description = "Transit Gateway route table associated with the VPN attachment"
+  value       = try(aws_ec2_transit_gateway_route_table.onpremises[0].id, null)
+}
+
 output "vpc_ids" {
   description = "Landing Zone VPC IDs"
 

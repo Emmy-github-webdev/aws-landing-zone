@@ -188,3 +188,39 @@ resource "aws_route" "infrastructure_to_nonproduction" {
   destination_cidr_block = var.nonproduction_vpc_cidr
   transit_gateway_id     = aws_ec2_transit_gateway.main.id
 }
+
+resource "aws_route" "infrastructure_to_onpremises" {
+  provider = aws.infrastructure
+
+  for_each = var.enable_onpremises_vpn ? {
+    for cidr in var.onpremises_cidrs : cidr => cidr
+  } : {}
+
+  route_table_id         = aws_route_table.infrastructure_private.id
+  destination_cidr_block = each.value
+  transit_gateway_id     = aws_ec2_transit_gateway.main.id
+}
+
+resource "aws_route" "production_to_onpremises" {
+  provider = aws.production
+
+  for_each = var.enable_onpremises_vpn ? {
+    for cidr in var.onpremises_cidrs : cidr => cidr
+  } : {}
+
+  route_table_id         = aws_route_table.production_private.id
+  destination_cidr_block = each.value
+  transit_gateway_id     = aws_ec2_transit_gateway.main.id
+}
+
+resource "aws_route" "nonproduction_to_onpremises" {
+  provider = aws.nonproduction
+
+  for_each = var.enable_onpremises_vpn ? {
+    for cidr in var.onpremises_cidrs : cidr => cidr
+  } : {}
+
+  route_table_id         = aws_route_table.nonproduction_private.id
+  destination_cidr_block = each.value
+  transit_gateway_id     = aws_ec2_transit_gateway.main.id
+}

@@ -36,6 +36,20 @@ locals {
   }
 }
 
+locals {
+  onpremises_vpc_cidrs = {
+    infrastructure = var.infrastructure_vpc_cidr
+    production     = var.production_vpc_cidr
+    nonproduction  = var.nonproduction_vpc_cidr
+  }
+
+  onpremises_vpc_tgw_route_tables = {
+    infrastructure = aws_ec2_transit_gateway_route_table.infrastructure.id
+    production     = aws_ec2_transit_gateway_route_table.production.id
+    nonproduction  = aws_ec2_transit_gateway_route_table.nonproduction.id
+  }
+}
+
 
 # Subnets
 

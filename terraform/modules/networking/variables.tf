@@ -53,6 +53,56 @@ variable "nonproduction_vpc_cidr" {
   type        = string
 }
 
+variable "enable_onpremises_vpn" {
+  description = "Create a BGP Site-to-Site VPN from on-premises through the inspection VPC"
+  type        = bool
+  default     = false
+
+  validation {
+    condition     = !var.enable_onpremises_vpn || var.enable_centralized_egress
+    error_message = "On-premises VPN requires centralized egress and Network Firewall to be enabled."
+  }
+}
+
+variable "onpremises_customer_gateway_ip" {
+  description = "Static public IPv4 address of the on-premises VPN device"
+  type        = string
+  default     = ""
+
+  validation {
+    condition = (
+      !var.enable_onpremises_vpn ||
+      can(cidrnetmask("${var.onpremises_customer_gateway_ip}/32"))
+    )
+    error_message = "Set onpremises_customer_gateway_ip to the on-premises device's public IPv4 address when enabling the VPN."
+  }
+}
+
+variable "onpremises_bgp_asn" {
+  description = "On-premises BGP ASN used by the Customer Gateway and VPN"
+  type        = number
+  default     = 65000
+
+  validation {
+    condition     = var.onpremises_bgp_asn >= 1 && var.onpremises_bgp_asn <= 2147483647
+    error_message = "onpremises_bgp_asn must be between 1 and 2147483647."
+  }
+}
+
+variable "onpremises_cidrs" {
+  description = "On-premises IPv4 prefixes advertised over BGP and routed through inspection"
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition = (
+      (!var.enable_onpremises_vpn || length(var.onpremises_cidrs) > 0) &&
+      alltrue([for cidr in var.onpremises_cidrs : can(cidrnetmask(cidr))])
+    )
+    error_message = "When the on-premises VPN is enabled, provide at least one valid IPv4 CIDR in onpremises_cidrs."
+  }
+}
+
 variable "enable_nat_gateway" {
   description = "Create NAT gateways for workload VPCs"
   type        = bool

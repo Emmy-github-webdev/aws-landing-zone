@@ -24,6 +24,30 @@ variable "enable_centralized_egress" {
   default     = true
 }
 
+variable "enable_onpremises_vpn" {
+  description = "Create a BGP Site-to-Site VPN from on-premises through Network Firewall"
+  type        = bool
+  default     = false
+}
+
+variable "onpremises_customer_gateway_ip" {
+  description = "Static public IPv4 address of the on-premises VPN device"
+  type        = string
+  default     = ""
+}
+
+variable "onpremises_bgp_asn" {
+  description = "On-premises BGP ASN used by the Customer Gateway and VPN"
+  type        = number
+  default     = 65000
+}
+
+variable "onpremises_cidrs" {
+  description = "On-premises IPv4 prefixes advertised over BGP and routed through inspection"
+  type        = list(string)
+  default     = []
+}
+
 variable "availability_zones" {
   description = "Availability Zones shared across the participating accounts"
   type        = list(string)

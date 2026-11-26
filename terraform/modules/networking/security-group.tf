@@ -58,3 +58,48 @@ resource "aws_vpc_security_group_egress_rule" "nonproduction_internal" {
   cidr_ipv4   = var.nonproduction_vpc_cidr
   description = "NonProduction VPC internal traffic"
 }
+
+resource "aws_vpc_security_group_ingress_rule" "infrastructure_onpremises_icmp" {
+  provider = aws.infrastructure
+
+  for_each = var.enable_onpremises_vpn ? {
+    for cidr in var.onpremises_cidrs : cidr => cidr
+  } : {}
+
+  security_group_id = aws_security_group.infrastructure_internal.id
+  cidr_ipv4         = each.value
+  ip_protocol       = "icmp"
+  from_port         = 8
+  to_port           = 0
+  description       = "On-premises ICMP echo requests"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "production_onpremises_icmp" {
+  provider = aws.production
+
+  for_each = var.enable_onpremises_vpn ? {
+    for cidr in var.onpremises_cidrs : cidr => cidr
+  } : {}
+
+  security_group_id = aws_security_group.production_internal.id
+  cidr_ipv4         = each.value
+  ip_protocol       = "icmp"
+  from_port         = 8
+  to_port           = 0
+  description       = "On-premises ICMP echo requests"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "nonproduction_onpremises_icmp" {
+  provider = aws.nonproduction
+
+  for_each = var.enable_onpremises_vpn ? {
+    for cidr in var.onpremises_cidrs : cidr => cidr
+  } : {}
+
+  security_group_id = aws_security_group.nonproduction_internal.id
+  cidr_ipv4         = each.value
+  ip_protocol       = "icmp"
+  from_port         = 8
+  to_port           = 0
+  description       = "On-premises ICMP echo requests"
+}
