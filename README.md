@@ -16,7 +16,6 @@ The goal was to connect an on-premises Ubuntu network securely to multiple AWS e
 
 ## Technologies used
 
-```text
 | Technologies | Purpose in this module |
 | --- | --- |
 | AWS Control Tower | Sets up and governs a secure, compliant multi-account AWS environment using best-practice blueprints |
@@ -46,7 +45,7 @@ The goal was to connect an on-premises Ubuntu network securely to multiple AWS e
 | Ubuntu Linux | Servers as onpremise/coperate network |
 | strongSwan | IPsec-based VPN solution |
 | FRRouting (FRR) | Internet routing protocol suite for Linux and Unix platforms. It implements BGP, OSPF, RIP, IS-IS, PIM, LDP, BFD |
-```
+
 ## Architecture
 
 _Hybrid Network design_
