@@ -129,7 +129,7 @@ Follow the steps below to create AWS landing zone with multi AWS accounts and hy
 
 #### Create the AWS Organization blueprints using AWS Control Tower
 - Sign in to the [AWS management console](https://us-west-2.signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fconsole.aws.amazon.com%2Fconsole%2Fhome%3Fca-oauth-flow-id%3D35a2%26hashArgs%3D%2523%26isauthcode%3Dtrue%26nc2%3Dh_si%26oauthStart%3D1795782732465%26src%3Dheader-signin%26state%3DhashArgsFromTB_eu-north-1_3dbeb442f0847b8e&client_id=arn%3Aaws%3Asignin%3A%3A%3Aconsole%2Fcanvas&forceMobileApp=0&oauth_region=eu-north-1&code_challenge=nZ5ZNz5slX03CF9ICF4SgWApWn_4A0gLt8VNLtTL_uo&code_challenge_method=SHA-256) with your administrator user credentials.
-- Navigate to the AWS Control Tower console at [](https://console.aws.amazon.com/controltower).
+- Navigate to the AWS Control Tower console at https://console.aws.amazon.com/controltower.
 - Verify that you are working in your desired home Region.
 - Choose Enable AWS Control Tower.
 - Follow the instructions in the console, accepting all the default values. Select existing accounts, or create new accounts, for your Aggregator account and CloudTrail administrator account.
