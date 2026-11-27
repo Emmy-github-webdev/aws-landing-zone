@@ -14,6 +14,228 @@ Finally, I verified that both ends exchanged routes and that a device on-premise
 ## Aim
 The goal was to connect an on-premises Ubuntu network securely to multiple AWS environments, while keeping traffic routed and inspected rather than opening direct, uncontrolled paths.
 
+## Prerequsite
+Log in
+Sign up for free
+Is this good enough?
+
+# AWS Landing Zone with Hybrid Network Connectivity
+
+## Overwiew
+This is a hybrid network connectivity project built with Terraform for an AWS landing zone.
+
+On AWS, I used a Transit Gateway as the central hub for the Infrastructure, Production, and NonProduction VPCs. Terraform provisions the Customer Gateway and a Site-to-Site VPN with two IPsec tunnels. For dynamic routing, strongSwan terminates the tunnels on Ubuntu, and FRRouting exchanges routes with AWS using BGP. This lets the on-premises and AWS networks learn the routes they need without maintaining every route manually.
+
+I also integrated the VPN with the centralized Network Firewall. Transit Gateway route tables steer traffic through the inspection VPC, and the return path follows the same inspection route. Firewall rules and security groups allow the required ICMP traffic while leaving other traffic subject to the existing policy.
+
+On the Ubuntu side, the tunnel interfaces, IPsec settings, BGP peers, and network forwarding were configured to match the AWS tunnel parameters. The setup includes two tunnels for resilience, and BGP uses separate autonomous system numbers for the on-premises router and AWS.
+
+Finally, I verified that both ends exchanged routes and that a device on-premises could reach a private AWS host. This project demonstrates infrastructure as code, hybrid networking, IPsec, BGP, network segmentation, and centralized traffic inspection.
+
+## Aim
+The goal was to connect an on-premises Ubuntu network securely to multiple AWS environments, while keeping traffic routed and inspected rather than opening direct, uncontrolled paths.
+
+Yes — this is good enough for a portfolio project, and technically, it demonstrates several valuable cloud networking skills. However, I would make a few improvements before publishing it on GitHub or using it in a CV or interview.
+
+I'd rate it 8/10 in its current form.
+
+What's already good
+You demonstrate several important AWS networking concepts:
+
+AWS Transit Gateway: Centralized connectivity between multiple VPCs.
+
+Site-to-Site VPN: Two IPsec tunnels for hybrid connectivity.
+
+Terraform: Infrastructure provisioning as code.
+
+strongSwan: Linux-based IPsec VPN termination.
+
+FRRouting (FRR): Dynamic BGP route exchange.
+
+AWS Network Firewall: Centralized traffic inspection.
+
+Network segmentation: Separation of Infrastructure, Production, and NonProduction environments.
+
+Troubleshooting and validation: Testing connectivity between on-premises and AWS.
+
+The combination of Transit Gateway, BGP, strongSwan, and Network Firewall is particularly good. It shows more than basic AWS deployment skills.
+
+What I would improve
+1. Fix the spelling
+You have:
+
+## Overwiew
+
+Change it to:
+
+## Overview
+
+2. Explain the architecture more clearly
+Your description is technically good, but someone reading it should immediately understand how everything connects.
+
+I'd recommend adding an architecture diagram:
+
+Deploy centralized traffic filtering using AWS Network Firewall | Networking & Content Delivery
+ 
+Your diagram should show:
+
+On-premises Ubuntu router.
+
+strongSwan IPsec tunnels.
+
+FRRouting BGP.
+
+AWS Transit Gateway.
+
+Infrastructure VPC.
+
+Production VPC.
+
+NonProduction VPC.
+
+Centralized Network Firewall inspection VPC.
+
+3. Add technical implementation details
+Your current description explains what you built, but not enough about how you built it.
+
+Consider adding a section like:
+
+Technologies Used
+
+AWS Transit Gateway
+
+AWS Site-to-Site VPN
+
+AWS Network Firewall
+
+Terraform
+
+Ubuntu Linux
+
+strongSwan
+
+FRRouting (FRR)
+
+IPsec
+
+BGP
+
+You could also mention:
+
+BGP ASN configuration.
+
+Transit Gateway route table associations and propagations.
+
+VPN tunnel routing.
+
+Network Firewall routing and inspection paths.
+
+Terraform project structure and modules.
+
+4. Strengthen the testing and validation section
+This is probably the most important improvement.
+
+Instead of simply saying you verified connectivity, explain what you actually tested.
+
+For example:
+
+Confirmed both IPsec tunnels established successfully.
+
+Verified BGP neighbor sessions reached the Established state.
+
+Confirmed AWS and on-premises route advertisements.
+
+Verified connectivity from an on-premises device to a private AWS EC2 instance.
+
+Confirmed traffic followed the intended inspection path through AWS Network Firewall.
+
+Only include tests you actually performed.
+
+5. Add a repository structure
+A good GitHub repository should make the project easy to understand.
+
+For example:
+
+
+text
+aws-hybrid-landing-zone/
+│
+├── terraform/
+│   ├── networking/
+│   ├── transit-gateway/
+│   ├── vpn/
+│   ├── network-firewall/
+│   └── variables.tf
+│
+├── on-premises/
+│   ├── strongswan/
+│   ├── frr/
+│   └── network-config/
+│
+├── diagrams/
+│   └── architecture.png
+│
+└── README.md
+Adapt this to your actual repository structure.
+
+My recommended final structure
+I'd organize your README like this:
+
+Overview
+
+Project Aim
+
+Architecture Diagram
+
+Technologies Used
+
+AWS Infrastructure
+
+Hybrid VPN Connectivity
+
+BGP Routing
+
+Centralized Network Inspection
+
+Testing and Validation
+
+Challenges and Lessons Learned
+
+Final verdict
+Strong portfolio project
+This is a worthwhile project for someone targeting roles such as:
+
+AWS Cloud Engineer
+
+Cloud Infrastructure Engineer
+
+Network Engineer
+
+Cloud Network Engineer
+
+DevOps Engineer
+
+One thing I would particularly emphasize: You didn't just create a VPN between Ubuntu and AWS. You built a hybrid network with dynamic routing, multiple AWS environments, centralized inspection, and infrastructure as code.
+
+That is what makes this project stand out.
+
+My recommendation: keep your Overview relatively concise, but expand the README with an architecture diagram, implementation details, and actual validation evidence. That will make it considerably more convincing to a technical recruiter or hiring manager.
+
+
+How good is this prerequsites?
+
+## Prerequsite
+
+Before starting this project, ensure you have the following:
+
+- **AWS Account**: An active AWS account with sufficient IAM permissions to provision VPCs, Transit Gateways, Site-to-Site VPNs, Customer Gateways, and AWS Network Firewall resources.
+- **GitHub Repository**: A GitHub account to clone the project repository and manage the Terraform configuration.
+- **Terraform**: Terraform CLI installed on your local workstation.
+- **AWS CLI**: AWS Command Line Interface installed and configured with credentials to access your AWS account.
+- **Ubuntu Virtual Machine**: At least one Ubuntu VM running in a virtualization environment (e.g., VirtualBox, VMware, or Hyper-V) to simulate an on-premises corporate network and act as the VPN endpoint.
+- **Networking Knowledge**: Basic understanding of TCP/IP, subnetting, routing, IPsec VPNs, and BGP.
+- **Linux Administration**: Basic familiarity with Ubuntu, command-line operations, and Linux network configuration.
+
 ## Technologies used
 
 | Technologies | Purpose in this module |
@@ -109,6 +331,7 @@ aws-landing-zone/
 └── README.md
 
 ```
+
 
 
 
