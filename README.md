@@ -1,5 +1,7 @@
 # AWS Landing Zone with Hybrid Network Connectivity
 
+[![Terraform Networking](https://github.com/Emmy-github-webdev/aws-landing-zone/actions/workflows/networking.yml/badge.svg?branch=main)](https://github.com/Emmy-github-webdev/aws-landing-zone/actions/workflows/networking.yml) [![Terraform](https://img.shields.io/badge/Terraform-1.10.5-623CE4?logo=terraform&logoColor=white)](https://www.terraform.io/) [![AWS Control Tower](https://img.shields.io/badge/AWS-Control%20Tower-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com/controltower/) [![AWS Transit Gateway](https://img.shields.io/badge/AWS-Transit%20Gateway-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com/transit-gateway/) [![AWS Site-to-Site VPN](https://img.shields.io/badge/AWS-Site--to--Site%20VPN-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com/vpn/)
+
 ## Overview
 This is a hybrid network connectivity project built with Terraform for an AWS landing zone.
 
