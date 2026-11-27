@@ -182,10 +182,46 @@ For the first iteration, deploy NAT Gateways per VPC. This avoids adding a centr
 #### Networking phase 4: Hybrid connectivity
 
 Hybrid connectivity is a planned phase; the phases above establish its network and DNS foundations. Before treating hybrid connectivity as implemented, document and configure the selected connection (such as Site-to-Site VPN or Direct Connect), Transit Gateway attachment and routing, on-premises routes, and DNS forwarding requirements.
+- Install strongSwanand the required tools on Ubuntu server
+```
+# Update Ubuntu
+sudo apt update
+sudo apt upgrade -y
 
- 
+# Install strongSwanand the required tools
+sudo apt install -y \
+  strongswan-swanctl \
+  charon-systemd \
+  frr \
+  iproute2 \
+  tcpdump
+```
+- Check the installation
+```
+# use the modern swanctl configuration rather than the older ipsec.conf format.
 
+swanctl --version
+ip -Version
+```
+- Enable IP forwarding
+  - Create VPN conf file
+```
+sudo nano /etc/sysctl.d/99-vpn.conf
+```
+  - Add
+```
+net.ipv4.ip_forward=1
+net.ipv4.conf.all.accept_redirects=0
+net.ipv4.conf.all.send_redirects=0
+net.ipv4.conf.default.accept_redirects=0
+net.ipv4.conf.default.send_redirects=0
 
+```
+  - Apply
+```
+sudo sysctl --system
+```
+- Create the two XFRM interfaces
 
 
 
