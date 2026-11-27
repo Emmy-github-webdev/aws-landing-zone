@@ -1,5 +1,135 @@
-# AWS Landing Zone
+# AWS Landing Zone with Hybrid Network Connectivity
 
+## Overview
+This is a hybrid network connectivity project built with Terraform for an AWS landing zone.
+
+On AWS, I used a Transit Gateway as the central hub for the Infrastructure, Production, and NonProduction VPCs. Terraform provisions the Customer Gateway and a Site-to-Site VPN with two IPsec tunnels. For dynamic routing, strongSwan terminates the tunnels on Ubuntu, and FRRouting exchanges routes with AWS using BGP. This lets the on-premises and AWS networks learn the routes they need without maintaining every route manually.
+
+I also integrated the VPN with the centralized Network Firewall. Transit Gateway route tables steer traffic through the inspection VPC, and the return path follows the same inspection route. Firewall rules and security groups allow the required ICMP traffic while leaving other traffic subject to the existing policy.
+
+On the Ubuntu side, the tunnel interfaces, IPsec settings, BGP peers, and network forwarding were configured to match the AWS tunnel parameters. The setup includes two tunnels for resilience, and BGP uses separate autonomous system numbers for the on-premises router and AWS.
+
+Finally, I verified that both ends exchanged routes and that a device on-premises could reach a private AWS host. This project demonstrates infrastructure as code, hybrid networking, IPsec, BGP, network segmentation, and centralized traffic inspection.
+
+## Aim
+The goal was to connect an on-premises Ubuntu network securely to multiple AWS environments, while keeping traffic routed and inspected rather than opening direct, uncontrolled paths.
+
+## Technologies used
+
+```text
+| Technologies | Purpose in this module |
+| --- | --- |
+| AWS Control Tower | Sets up and governs a secure, compliant multi-account AWS environment using best-practice blueprints |
+| AWS Organization | Enables central governance and consistent management of your AWS resources across multiple accounts and AWS services |
+| Dashboard & Governance |  Centralized visibility into provisioned accounts, OUs, and control compliance status, with drift detection and repair capabilities |
+| Account Factory |  A configurable template (built on AWS Service Catalog) that automates provisioning new AWS accounts with pre-approved network, security, and access baselines. |
+| Controls (Guardrails) | Pre-packaged rules (preventive, detective, or proactive) categorized as mandatory, strongly recommended, or elective to enforce compliance, data residency, and security standards. |
+| Landing Zone | A baseline multi-account structure with Organizational Units (OUs), shared accounts (such as log archive and audit accounts), centralized AWS CloudTrail and AWS Config logging, and baseline security roles |
+| Amazon VPC, subnets, route tables and routes | Isolate account networks, separate private/isolated tiers, and direct traffic |
+| AWS Transit Gateway | Hub for inter-VPC connectivity and separate routing domains |
+| AWS Resource Access Manager (RAM) | Shares the Transit Gateway and corporate Resolver rule across the organization |
+| AWS Network Firewall | Inspects and filters centralized outbound traffic |
+| Internet Gateway, NAT Gateway and Elastic IP | Provide controlled outbound internet access from the egress VPC; the NAT gateways use stable public IPs |
+| Amazon Route 53 Resolver | Provides inbound DNS resolution and outbound forwarding to corporate DNS |
+| Route 53 Resolver DNS Firewall | Applies the configured blocked-domain list to queries in each VPC |
+| Amazon CloudWatch Logs | Stores local DNS query logs and Network Firewall flow/alert logs |
+| CloudWatch Logs destinations and subscription filters | Stream query logs across accounts to the Logging account |
+| Amazon Kinesis Data Streams | Central, short-retention stream destination for cross-account DNS log subscriptions |
+| Amazon Data Firehose | Decompresses/extracts DNS log events and delivers archive objects to S3 |
+| Amazon S3 | Central DNS audit archive with encryption, versioning, lifecycle, and Object Lock |
+| AWS Identity and Access Management (IAM) | Allows AWS services to assume delivery/logging roles with scoped permissions |
+| VPC Flow Logs | Captures VPC network traffic metadata in CloudWatch Logs (currently configured for Infrastructure) |
+| Amazon VPC gateway endpoints | Provide private route-table access to S3 and DynamoDB without routing those services through the internet |
+| Security groups | Restrict Resolver endpoint DNS access to configured networks and DNS servers |
+| AWS Site-to-Site VPN | Enable secure site connections without the complexity of traditional VPNs |
+| Terraform | Infrastructure as Code |
+| Ubuntu Linux | Servers as onpremise/coperate network |
+| strongSwan | IPsec-based VPN solution |
+| FRRouting (FRR) | Internet routing protocol suite for Linux and Unix platforms. It implements BGP, OSPF, RIP, IS-IS, PIM, LDP, BFD |
+```
+## Architecture
+
+_Hybrid Network design_
+
+![](./images/Hybrid%20networking%20(centralized%20Transit%20Gateway%20with%20independent%20VPCs)%20-%20aws%20landing%20zone.jpeg)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+=================================================================================================================================
+=================================================================================================================================
+=================================================================================================================================
 This repository provides a Terraform-managed foundation for a multi-account AWS
 landing zone. AWS Control Tower establishes the organization foundation;
 separate Terraform environments manage organizational structure, governance,
