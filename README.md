@@ -1,291 +1,553 @@
-# AWS Landing Zone
+# AWS Landing Zone with Hybrid Network Connectivity
 
-This repository provides a Terraform-managed foundation for a multi-account AWS
-landing zone. AWS Control Tower establishes the organization foundation;
-separate Terraform environments manage organizational structure, governance,
-central security services, and shared networking.
+[![Terraform Networking](https://github.com/Emmy-github-webdev/aws-landing-zone/actions/workflows/networking.yml/badge.svg?branch=main)](https://github.com/Emmy-github-webdev/aws-landing-zone/actions/workflows/networking.yml) [![Terraform](https://img.shields.io/badge/Terraform-1.10.5-623CE4?logo=terraform&logoColor=white)](https://www.terraform.io/) [![AWS Control Tower](https://img.shields.io/badge/AWS-Control%20Tower-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com/controltower/) [![AWS Transit Gateway](https://img.shields.io/badge/AWS-Transit%20Gateway-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com/transit-gateway/) [![AWS Site-to-Site VPN](https://img.shields.io/badge/AWS-Site--to--Site%20VPN-FF9900?logo=amazonaws&logoColor=white)](https://aws.amazon.com/vpn/)
 
-> **Deployment status:** Treat this repository as an implementation to review
-> and adapt, not as a turnkey production deployment. Confirm all account IDs,
-> regions, permissions, policy effects, network paths, retention settings, and
-> workflow protections in your own AWS organization before applying changes.
+## Overview
+This is a hybrid network connectivity project built with Terraform for an AWS landing zone.
 
-## Compliance and assurance scope
+On AWS, I used a Transit Gateway as the central hub for the Infrastructure, Production, and NonProduction VPCs. Terraform provisions the Customer Gateway and a Site-to-Site VPN with two IPsec tunnels. For dynamic routing, strongSwan terminates the tunnels on Ubuntu, and FRRouting exchanges routes with AWS using BGP. This lets the on-premises and AWS networks learn the routes they need without maintaining every route manually.
 
-This repository is framework-neutral. It does not claim certification,
-attestation, or compliance with SOC 2, ISO/IEC 27001, NIST, PCI DSS, or any
-other regulatory or industry framework. Deploying these resources alone does
-not demonstrate compliance. The organization remains responsible for defining
-applicable requirements, assessing control design and operation, and
-maintaining evidence for its auditors and customers.
+I also integrated the VPN with the centralized Network Firewall. Transit Gateway route tables steer traffic through the inspection VPC, and the return path follows the same inspection route. Firewall rules and security groups allow the required ICMP traffic while leaving other traffic subject to the existing policy.
 
-Use the guide as an infrastructure control baseline, then map each applicable
-requirement to an accountable control owner, the actual implementation, and
-evidence from your AWS accounts and change-management systems. Validate
-framework-specific requirements with your compliance and legal teams. AWS
-Control Tower and AWS security services provide capabilities; they do not
-transfer the customer's responsibilities under the AWS Shared Responsibility
-Model.
+On the Ubuntu side, the tunnel interfaces, IPsec settings, BGP peers, and network forwarding were configured to match the AWS tunnel parameters. The setup includes two tunnels for resilience, and BGP uses separate autonomous system numbers for the on-premises router and AWS.
 
-## Control ownership and evidence
+Finally, I verified that both ends exchanged routes and that a device on-premises could reach a private AWS host. This project demonstrates infrastructure as code, hybrid networking, IPsec, BGP, network segmentation, and centralized traffic inspection.
 
-Assign named owners and retain evidence in an approved, access-controlled
-system. The examples below are evidence candidates, not evidence generated or
-retained automatically by this repository.
+## Aim
+The goal was to connect an on-premises Ubuntu network securely to multiple AWS environments, while keeping traffic routed and inspected rather than opening direct, uncontrolled paths.
 
-| Control objective | Accountable owner | Evidence to retain |
-| --- | --- | --- |
-| Identity lifecycle, least privilege, and privileged access | Identity and cloud platform teams | Role and trust-policy reviews, access approvals, MFA and break-glass tests, access review records, and IAM Access Analyzer findings with disposition |
-| Change authorization and separation of duties | Change owner and independent approver | Change record, reviewed pull request, exact plan and approval, workflow run, deployment result, and post-deployment verification |
-| Organization guardrails and exceptions | Cloud governance team | Effective policy attachments, test results, approved exceptions with owner and expiry, and periodic policy review |
-| Audit logging and security monitoring | Security operations team | CloudTrail delivery and integrity checks, security-service coverage, alert triage records, Config recorder coverage, and escalation evidence |
-| Data protection and retention | Data owner and platform team | Data classification, bucket policies, encryption and retention settings, access reviews, recovery tests, and approved retention exceptions |
-| Network security and segmentation | Network security team | Approved CIDR inventory, route and firewall reviews, connectivity tests, DNS policy tests, and centralized log delivery checks |
-| Resilience and incident response | Service owner and security operations | Recovery procedures, backup/restore test results, incident runbooks, escalation contacts, and exercise outcomes |
+## Prerequsite
 
-For each retained evidence item, record its source, collection date, account and
-Region, control owner, review status, and retention period. Keep evidence
-tamper-resistant where required by policy. Do not place credentials, customer
-data, raw security logs, or unreviewed Terraform plans in the repository.
-Treat state files and saved plans as sensitive because they may contain
-infrastructure details or secret values.
+Before starting this project, ensure you have the following:
 
-## Change control baseline
+- **AWS Account**: An active AWS account with sufficient IAM permissions to provision VPCs, Transit Gateways, Site-to-Site VPNs, Customer Gateways, and AWS Network Firewall resources.
+- **GitHub Repository**: A GitHub account to clone the project repository and manage the Terraform configuration.
+- **Terraform**: Terraform CLI installed on your local workstation.
+- **AWS CLI**: AWS Command Line Interface installed and configured with credentials to access your AWS account.
+- **Ubuntu Virtual Machine**: At least one Ubuntu VM running in a virtualization environment (e.g., VirtualBox, VMware, or Hyper-V) to simulate an on-premises corporate network and act as the VPN endpoint.
+- **Networking Knowledge**: Basic understanding of TCP/IP, subnetting, routing, IPsec VPNs, and BGP.
+- **Linux Administration**: Basic familiarity with Ubuntu, command-line operations, and Linux network configuration.
 
-Apply the following controls to infrastructure changes, especially changes
-that affect production accounts, organization policies, audit data, or network
-routing:
+## Technologies used
 
-1. Link the change to an approved request that identifies the purpose, scope,
-   affected accounts and Regions, risk, owner, validation plan, and rollback or
-   recovery approach.
-2. Require peer review by the relevant platform, security, network, or
-   governance owner. Review policy scope, identity permissions, data handling,
-   resource replacement, and destructive effects—not only whether a plan
-   completes successfully.
-3. Verify that the plan targets the intended AWS organization, account,
-   Region, and remote-state key. Approval must apply to the exact plan that is
-   applied; regenerate and re-review it if the configuration or state changes.
-4. Separate request, approval, and deployment responsibilities where required
-   by organizational policy. Restrict production and destructive operations
-   to explicitly authorized identities.
-5. Capture the change record, review and approval, workflow run, plan reference,
-   deployment result, and validation outcome in the designated evidence
-   system. Apply the organization's retention and access controls to these
-   records.
-6. After deployment, verify the expected behavior in AWS, check for drift or
-   failed service integrations, and record any exception with a named owner,
-   compensating control, and review or expiry date.
+| Technologies | Purpose in this module |
+| --- | --- |
+| AWS Control Tower | Sets up and governs a secure, compliant multi-account AWS environment using best-practice blueprints |
+| AWS Organization | Enables central governance and consistent management of your AWS resources across multiple accounts and AWS services |
+| Dashboard & Governance |  Centralized visibility into provisioned accounts, OUs, and control compliance status, with drift detection and repair capabilities |
+| Account Factory |  A configurable template (built on AWS Service Catalog) that automates provisioning new AWS accounts with pre-approved network, security, and access baselines. |
+| Controls (Guardrails) | Pre-packaged rules (preventive, detective, or proactive) categorized as mandatory, strongly recommended, or elective to enforce compliance, data residency, and security standards. |
+| Landing Zone | A baseline multi-account structure with Organizational Units (OUs), shared accounts (such as log archive and audit accounts), centralized AWS CloudTrail and AWS Config logging, and baseline security roles |
+| Amazon VPC, subnets, route tables and routes | Isolate account networks, separate private/isolated tiers, and direct traffic |
+| AWS Transit Gateway | Hub for inter-VPC connectivity and separate routing domains |
+| AWS Resource Access Manager (RAM) | Shares the Transit Gateway and corporate Resolver rule across the organization |
+| AWS Network Firewall | Inspects and filters centralized outbound traffic |
+| Internet Gateway, NAT Gateway and Elastic IP | Provide controlled outbound internet access from the egress VPC; the NAT gateways use stable public IPs |
+| Amazon Route 53 Resolver | Provides inbound DNS resolution and outbound forwarding to corporate DNS |
+| Route 53 Resolver DNS Firewall | Applies the configured blocked-domain list to queries in each VPC |
+| Amazon CloudWatch Logs | Stores local DNS query logs and Network Firewall flow/alert logs |
+| CloudWatch Logs destinations and subscription filters | Stream query logs across accounts to the Logging account |
+| Amazon Kinesis Data Streams | Central, short-retention stream destination for cross-account DNS log subscriptions |
+| Amazon Data Firehose | Decompresses/extracts DNS log events and delivers archive objects to S3 |
+| Amazon S3 | Central DNS audit archive with encryption, versioning, lifecycle, and Object Lock |
+| AWS Identity and Access Management (IAM) | Allows AWS services to assume delivery/logging roles with scoped permissions |
+| VPC Flow Logs | Captures VPC network traffic metadata in CloudWatch Logs (currently configured for Infrastructure) |
+| Amazon VPC gateway endpoints | Provide private route-table access to S3 and DynamoDB without routing those services through the internet |
+| Security groups | Restrict Resolver endpoint DNS access to configured networks and DNS servers |
+| AWS Site-to-Site VPN | Enable secure site connections without the complexity of traditional VPNs |
+| Terraform | Infrastructure as Code |
+| Ubuntu Linux | Servers as onpremise/coperate network |
+| strongSwan | IPsec-based VPN solution |
+| FRRouting (FRR) | Internet routing protocol suite for Linux and Unix platforms. It implements BGP, OSPF, RIP, IS-IS, PIM, LDP, BFD |
 
-The current workflows do not enforce this full baseline by themselves. In
-particular, a retained plan artifact is not an approval gate for the apply in
-that run, and pushes to `main` can select apply by default. Configure and test
-the required GitHub Environment protections and workflow behavior before
-using these workflows as a regulated change-control mechanism.
+## Architecture
 
-## Architecture at a glance
+_Hybrid Network design_
 
-The current design separates responsibilities across these accounts and
-deployment layers:
+![](./images/Hybrid%20networking%20(centralized%20Transit%20Gateway%20with%20independent%20VPCs)%20-%20aws%20landing%20zone.jpeg)
+![](./images/1-infra-vpc.png)
+![](./images/4-tunnels.png)
+![](./images/5-tgw.png)
 
-| Layer | Responsibility | Primary account(s) |
-| --- | --- | --- |
-| AWS foundation | AWS Organizations, Control Tower, identity, and account lifecycle | Management |
-| Organizations | Organizational units, account placement, and Control Tower baselines | Management |
-| Governance | Preventive organization guardrails and Service Control Policies | Management |
-| Security | Central security services and audit logging | Security, Logging, and Management |
-| Networking | Transit Gateway, account VPCs, shared DNS, and optional centralized egress | Infrastructure, Production, NonProduction, and Logging |
-| State bootstrap | Remote Terraform state storage | Dedicated bootstrap context |
+## GitHub Repository Structure
+```
+aws-landing-zone/
+│
+├── modules/
+│   ├── organizations/
+│   │   ├── main.tf
+│   │   ├── data.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   ├── governance/
+│   │   ├── main.tf
+│   │   ├── policies.tf
+│   │   ├── locals.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   ├── security/
+│   │   ├── main.tf
+│   │   ├── cloudtrail.tf
+│   │   ├── config.tf
+│   │   ├── guardduty.tf
+│   │   ├── securityhub.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   └── networking/
+│       ├── main.tf
+│       ├── transit-gateway.tf
+│       ├── vpc.tf
+│       ├── subnets.tf
+│       ├── routing.tf
+│       ├── endpoints.tf
+│       ├── variables.tf
+│       └── outputs.tf
+│
+├── environments/
+│   ├── organizations/
+│   ├── governance/
+│   ├── security/
+│   └── networking/
+│
+├── bootstrap/
+│   └── terraform-state/
+│
+├── .github/
+│   └── workflows/
+│       ├── organizations.yml
+│       ├── governance.yml
+│       ├── security.yml
+│       └── networking.yml
+│
+├── .gitignore
+└── README.md
 
-The workload network currently uses separate Infrastructure, Production, and
-NonProduction accounts. The Security and Logging accounts are separate from the
-Management account. Confirm that this layout matches your Control Tower
-configuration; discover and adopt existing organization resources rather than
-creating duplicates.
+```
+## Implementation Steps
 
-## Before you begin
+Follow these steps to build an AWS landing zone with multiple AWS accounts and hybrid connectivity to an on-premises or corporate network.
 
-Complete these preparation steps before deploying Terraform:
+### Step 1: Set up the landing zone with AWS Control Tower
 
-1. **Establish the AWS foundation.** Select the management account and intended
-   Control Tower home Region. Create or verify the AWS Organization and an active
-   Control Tower landing zone. The home Region is a foundational choice; changing
-   it later is a migration or reconfiguration effort, not a routine setting
-   change. See the [Control Tower quick start](https://docs.aws.amazon.com/controltower/latest/userguide/quick-start.html).
-2. **Inventory accounts and organization resources.** Identify the Management,
-   Security, Logging, Infrastructure, Production, and NonProduction accounts;
-   record the organization ID, account IDs, existing OUs, enabled Regions, and
-   existing Control Tower baselines. Determine which existing resources must be
-   imported into Terraform state.
-3. **Choose and validate Regions and network ranges.** Confirm the primary and
-   secondary Regions used by the environment configuration and security
-   services. Check VPC and subnet CIDRs against every connected VPC and
-   on-premises network, and verify Availability Zone availability and service
-   quotas.
-4. **Prepare access and state management.** Use a controlled administrative
-   session for initial setup. For GitHub Actions, configure AWS OIDC trust and
-   least-privilege roles scoped to this repository and the intended branches or
-   environments. Prepare a unique remote-state bucket and restrict access to
-   authorized operators and deployment roles.
-5. **Prepare account details and configuration.** Supply verified account IDs,
-   organization identifiers, account email addresses where account creation is
-   intended, role ARNs, Region selections, CIDRs, DNS settings, and retention
-   values through the appropriate environment configuration. Never commit
-   credentials or secret values.
-6. **Set deployment protections.** Configure GitHub Environments, reviewers,
-   branch restrictions, and role permissions before enabling changes to reach
-   production accounts.
+1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/) using an account with the permissions required to set up AWS Control Tower.
+2. Open the [AWS Control Tower console](https://console.aws.amazon.com/controltower).
+3. Confirm that you are using the intended home Region.
+4. Choose **Set up landing zone** and follow the setup wizard. Review the configuration, including the Audit and Log Archive accounts, before proceeding.
+5. Start the setup and wait for AWS Control Tower to finish provisioning the landing zone. Setup time varies.
 
-## Step-by-step deployment
+### Step 2: Deploy the Terraform configuration
 
-Deploy one layer at a time. At each stage, review the proposed changes, verify
-the target account and Region, and resolve unexpected replacements or deletions
-before proceeding.
+Deploy the Terraform stacks in this order: **bootstrap**, **organization**, **governance**, **security**, and **networking**. The bootstrap stack configures the Terraform state backend and must be deployed before the other stacks. S3-native state locking is recommended and requires Terraform 1.10 or later.
 
-### 1. Create the Control Tower foundation
+#### Organization
+- Create the organization and its organizational units (OUs). This configuration is intended for a new Infrastructure and Workloads hierarchy.
+- If these OUs already exist, import them into Terraform and remove the creation preconditions before planning. Do not apply the creation configuration to existing OUs without importing them first.
 
-Use the AWS console to establish the organization and Control Tower landing
-zone. Configure the required foundational accounts and baseline controls.
-Review existing Security and Sandbox OUs and other organization resources
-before deciding whether Terraform should manage them.
+![](./images/6-orgnization.png)
 
-**Exit check:** Control Tower reports a healthy landing zone, the management
-account and home Region are confirmed, and the intended member accounts are
-available or their creation plan is approved.
+#### Accounts
+- Create the AWS accounts for the organizational units.
 
-### 2. Bootstrap remote Terraform state
+#### Governance
+- Deploy organization-wide guardrails.
 
-Run the dedicated bootstrap deployment using an authorized AWS session. Create
-the remote-state bucket before initializing the other Terraform environments.
-Verify its name, Region, versioning, encryption, public-access protections,
-access policy, and recovery process. Keep state files and saved plans out of
-source control.
+#### Security
+- Configure the Security account as the delegated administrator for supported security services.
+- Configure the Logging account to own the centralized CloudTrail destination.
 
-**Exit check:** The bucket is ready, access is limited to the required
-operators and roles, and the backend settings for each environment point to
-the correct bucket and unique state key.
+![](./images/security%20design%20-%20aws%20landing%20zone.jpeg)
 
-### 3. Establish organization structure
+#### Networking phase 1: Foundational network
+- Support three Availability Zones.
+- Create public, private application, and isolated subnet tiers.
+- Deploy VPCs, subnets, routing, security groups, and VPC Flow Logs.
+- Deploy NAT Gateways and VPC endpoints for AWS services.
+- Deploy a Transit Gateway with route propagation and associations.
+- Maintain separate Production and NonProduction routing domains.
+- Support cross-account deployment.
 
-Deploy the Organizations environment. Review the planned OU structure, account
-placement, account imports or creation, and Control Tower baseline assignments.
-Confirm that account and organization identifiers match the live organization;
-do not apply a plan that proposes replacing or recreating existing accounts or
-OUs unexpectedly.
+For the first iteration, deploy NAT Gateways per VPC. This avoids adding a centralized egress dependency before Transit Gateway routing is validated. Egress can later be migrated to the Infrastructure account's inspection VPC using AWS Network Firewall.
 
-**Exit check:** The intended OUs and account placements are present, existing
-accounts are represented safely in Terraform state, and Control Tower
-integrations remain healthy.
+#### Networking phase 2: Centralized egress and inspection
+- Provide centralized outbound internet access through an egress VPC.
+- Inspect traffic with a stateful firewall and filter by domain and IP address.
+- Configure inspection VPC routing and separate Production and NonProduction routing domains.
+- Centralize firewall logging and design for Multi-AZ resilience.
 
-### 4. Prepare management-account security integrations
+#### Networking phase 3: Centralized DNS
+- Configure Route 53 Resolver inbound and outbound endpoints and forwarding rules.
+- Enable cross-account DNS forwarding and centralized DNS query logging.
+- Configure Route 53 DNS Firewall domain lists, rule groups, and associations.
+- Apply consistent DNS policies across Production and NonProduction and design for Multi-AZ resilience.
+- Send centralized DNS logs to the Logging account.
 
-Deploy the management-bootstrap environment after the Security account and
-organization structure are available. This stage prepares GuardDuty trusted
-access and registers the Security account as the delegated administrator in
-the configured Regions.
+#### Networking phase 4: Hybrid connectivity
 
-**Exit check:** Verify the delegated administrator registrations and
-organization integration in AWS before deploying member security resources.
+Hybrid connectivity is a planned phase; the phases above establish its network and DNS foundations. Before treating hybrid connectivity as implemented, document and configure the selected connection (such as Site-to-Site VPN or Direct Connect), Transit Gateway attachment and routing, on-premises routes, and DNS forwarding requirements.
+- Install strongSwanand the required tools on Ubuntu server
+```
+# Update Ubuntu
+sudo apt update
+sudo apt upgrade -y
 
-### 5. Apply organization governance
+# Install strongSwanand the required tools
+sudo apt install -y \
+  strongswan-swanctl \
+  charon-systemd \
+  frr \
+  iproute2 \
+  tcpdump
+```
+- Check the installation
+```
+# use the modern swanctl configuration rather than the older ipsec.conf format.
 
-Deploy the Governance environment only after checking every policy attachment
-target and evaluating its effects on account recovery, Control Tower
-operations, security services, and deployment roles. Service Control Policies
-set permission boundaries; they do not grant permissions. Begin with a
-controlled rollout and confirm that emergency and administrative access paths
-remain available.
+swanctl --version
+vtysh --version
+```
+- Enable strongSwan
+```
+sudo systemctl enable --now strongswan
+```
+- Check
+```
+sudo systemctl status strongswan
+```
+#### Configure Linux IP forwarding
+  - Create VPN conf file
+```
+sudo nano /etc/sysctl.d/99-vpn.conf
+```
+  - Add
+```
+net.ipv4.ip_forward=1
+net.ipv4.conf.all.accept_redirects=0
+net.ipv4.conf.all.send_redirects=0
+net.ipv4.conf.default.accept_redirects=0
+net.ipv4.conf.default.send_redirects=0
 
-**Exit check:** Confirm the effective policies on the intended OUs and test
-representative allowed and denied actions in a non-production account.
+```
+  - Apply
+```
+sudo sysctl --system
+```
+- Verify
+```
+sysctl net.ipv4.ip_forward
+```
+#### Create the two VPN tunnel interfaces
+```
 
-### 6. Deploy centralized security services
+# Tunnel 1
+ip link add ipsec0 type xfrm if_id 42
+ip addr add 169.254.x.x/30 dev ipsec0
+ip link set ipsec0 mtu 1436
+ip link set ipsec0 up
 
-Deploy the Security environment after verifying the Security, Management, and
-Logging account identities, cross-account roles, delegated administrators,
-trusted service access, and Region configuration. Review the plan for
-organization-wide changes and confirm that audit logs reach the intended
-Logging account.
+# Tunnel 2
+ip link add ipsec1 type xfrm if_id 43
+ip addr add 169.254.x.x/30 dev ipsec1
+ip link set ipsec1 mtu 1436
+ip link set ipsec1 up
 
-The AWS Config aggregator is not a substitute for Config recorders, delivery
-channels, or rules in member accounts. Verify account enrollment and regional
-coverage for each service independently.
+```
+- Verify
+```
+ip -br addr show ipsec0
+ip -br addr show ipsec1
 
-**Exit check:** Confirm service administration, account and Region coverage,
-CloudTrail delivery, security findings, and required retention and deletion
-protections.
+```
+- Create
+```
+sudo nano /usr/local/sbin/aws-vpn-interfaces.sh
+```
+- Add
+```
+#!/bin/bash
+set -e
 
-### 7. Deploy shared networking
+ip link add ipsec0 type xfrm if_id 42 2>/dev/null || true
+ip link add ipsec1 type xfrm if_id 43 2>/dev/null || true
 
-Deploy the Networking environment after the participating accounts, cross-
-account roles, and AWS RAM organization sharing are ready. Validate CIDR
-non-overlap, Transit Gateway attachments and routes, DNS access ranges,
-corporate resolver reachability, firewall policy, egress routes, and DNS log
-retention. Stage routing changes: verify the inspection and return paths, test
-a non-production workload, and coordinate production route changes with
-workload owners.
+ip addr replace 169.254.x.x/30 dev ipsec0
+ip addr replace 169.254.x.x/30 dev ipsec1
 
-**Exit check:** Verify attachment state and effective routes in each account;
-test approved DNS forwarding and filtering; and confirm that expected DNS and
-firewall logs reach their central destinations.
+ip link set ipsec0 mtu 1436
+ip link set ipsec1 mtu 1436
 
-### 8. Operate deployments through GitHub Actions
+ip link set ipsec0 up
+ip link set ipsec1 up
+```
+- Make it executable
+```
+sudo chmod 755 /usr/local/sbin/aws-vpn-interfaces.sh
+```
+- Create a systemd service
+```
+sudo nano /etc/systemd/system/aws-vpn-interfaces.service
+```
+- Add content
+```
+[Unit]
+Description=AWS Site-to-Site VPN interfaces
+Before=strongswan.service frr.service
 
-Use the environment-specific workflows for ongoing changes after reviewing
-their configuration and access controls. Configure OIDC role trust, GitHub
-Environment approvals, and branch protections for each deployment target.
-Inspect every plan and ensure approval applies to the exact change being
-deployed. Restrict destructive actions to authorized operators and require an
-independent review of their impact.
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/aws-vpn-interfaces.sh
+RemainAfterExit=yes
 
-Read [GitHub Actions workflow documentation](./.github/workflows/README.md)
-before relying on automated runs. The current workflow path filters need
-correction to include the repository's `terraform/` directory, and pushes to
-`main` can select apply by default. A plan artifact is retained for review but
-is not, by itself, an approval gate for the apply in that run.
+[Install]
+WantedBy=multi-user.target
 
-### 9. Verify and hand over
+```
+- Enable
+```
+sudo systemctl daemon-reload
+sudo systemctl enable --now aws-vpn-interfaces.service
+```
+#### Configure strongSwan
+- Create the configuration file
+```
+sudo mkdir -p /etc/swanctl/conf.d
+sudo nano /etc/swanctl/conf.d/aws-vpn.conf
+```
+- Add
+```
 
-Record the deployed account, Region, state key, workflow run, and approval for
-each environment. Validate service health, organization policy inheritance,
-network connectivity, logging delivery, alert ownership, and recovery
-procedures. Document exceptions and assign an operational owner for each
-control before onboarding production workloads.
+connections {
 
-## Production-readiness checks
+  aws-tunnel-1 {
+    version = 1
 
-Resolve these repository-specific items before treating the deployment as
-production-ready:
+    local_addrs = %any
+    remote_addrs = 35.170.x.x
 
-- The state bootstrap currently uses SSE-S3 encryption and has a
-  testing-oriented `prevent_destroy` setting. Decide whether your policy
-  requires customer-managed key controls, enable appropriate deletion
-  protection, and test state recovery before production use.
-- The Governance module's current Region restriction policy is hard-coded;
-  changing the `approved_regions` input alone does not update that policy.
-  Review the policy document and its global-service exceptions before
-  attachment.
-- The Security module's `cloudtrail_retention_days` input currently does not
-  configure S3 lifecycle expiration. Define, implement, and verify retention
-  and noncurrent-version handling against your records policy before relying on
-  it for audit retention.
-- The GitHub Actions path filters currently omit the `terraform/` prefix for
-  environment files. Changes to Terraform files may therefore not trigger the
-  expected workflow automatically. The deployment behavior and protections
-  are described in the [workflow guide](./.github/workflows/README.md).
-- Security and networking features have implementation-specific prerequisites
-  and limitations. Review the [Governance guide](./terraform/modules/governance/README.md),
-  [Security guide](./terraform/modules/security/README.md), and
-  [Networking guide](./terraform/modules/networking/README.md) before enabling
-  their respective layers.
+    proposals = aes128-sha1-modp1024
 
-## Repository guides
+    rekey_time = 7h
+    dpd_delay = 10s
+    keyingtries = 0
 
-- [GitHub Actions workflows](./.github/workflows/README.md): triggers, actions,
-  state keys, OIDC configuration, and deployment behavior.
-- [Governance module](./terraform/modules/governance/README.md): active
-  Service Control Policies, deployment prerequisites, and governance roadmap.
-- [Security module](./terraform/modules/security/README.md): deployed services,
-  account and Region behavior, and operational considerations.
-- [Networking module](./terraform/modules/networking/README.md): account
-  topology, traffic flows, prerequisites, validation, and current limitations.
+    local {
+      auth = psk
+      id = 77.161.x.x
+    }
+
+    remote {
+      auth = psk
+      id = 35.170.x.x
+    }
+
+    children {
+      aws-tunnel-1 {
+        local_ts = 0.0.0.0/0
+        remote_ts = 0.0.0.0/0
+
+        esp_proposals = aes128-sha1-modp1024
+
+        rekey_time = 50m
+        life_time = 1h
+
+        if_id_in = 42
+        if_id_out = 42
+
+        start_action = start
+        dpd_action = restart
+      }
+    }
+  }
+
+
+  aws-tunnel-2 {
+    version = 1
+
+    local_addrs = %any
+    remote_addrs = 54.80.x.x
+
+    proposals = aes128-sha1-modp1024
+
+    rekey_time = 7h
+    dpd_delay = 10s
+    keyingtries = 0
+
+    local {
+      auth = psk
+      id = 77.161.x.x
+    }
+
+    remote {
+      auth = psk
+      id = 54.80.x.x
+    }
+
+    children {
+      aws-tunnel-2 {
+        local_ts = 0.0.0.0/0
+        remote_ts = 0.0.0.0/0
+
+        esp_proposals = aes128-sha1-modp1024
+
+        rekey_time = 50m
+        life_time = 1h
+
+        if_id_in = 43
+        if_id_out = 43
+
+        start_action = start
+        dpd_action = restart
+      }
+    }
+  }
+
+}
+
+
+secrets {
+
+  ike-tunnel-1 {
+    id-1 = 77.161.x.x
+    id-2 = 35.170.x.x
+    secret = "REPLACE_WITH_NEW_TUNNEL_1_PSK"
+  }
+
+  ike-tunnel-2 {
+    id-1 = 77.161.x.x
+    id-2 = 54.80.x.x
+    secret = "REPLACE_WITH_NEW_TUNNEL_2_PSK"
+  }
+
+}
+
+```
+- Make it persistent
+```
+sudo chmod 600 /etc/swanctl/conf.d/aws-vpn.conf
+
+```
+- Check the service
+```
+sudo systemctl status strongswan
+```
+- Load the configuration
+```
+sudo swanctl --load-all
+```
+- Initiate tunnel 1 and 2
+```
+sudo swanctl --initiate --child aws-tunnel-1
+sudo swanctl --initiate --child aws-tunnel-2
+```
+- Check
+```
+sudo swanctl --list-sas
+
+```
+- If it fails, check
+```
+sudo journalctl -u strongswan -n 100 --no-pager
+```
+#### Configure FRRouting (BGP)
+- Enable FRR daemons
+```
+sudo nano /etc/frr/daemons
+```
+- Find and configure
+```
+zebra=yes
+bgpd=yes
+```
+- Enable FRR
+```
+sudo systemctl enable --now frr
+
+```
+#### Configure BGP
+- Open
+```
+sudo nano /etc/frr/frr.conf
+
+```
+- Add
+```
+
+frr defaults traditional
+hostname ubuntu-aws-vpn
+service integrated-vtysh-config
+!
+ip prefix-list ONPREM-PREFIX seq 10 permit 192.168.x.x/24
+!
+route-map ONPREM-OUT permit 10
+ match ip address prefix-list ONPREM-PREFIX
+!
+router bgp 65000
+ bgp router-id 77.161.x.x
+
+ neighbor 169.254.x.129 remote-as 64512
+ neighbor 169.254.x.129 description AWS-VPN-TUNNEL-1
+ neighbor 169.254.x.129 update-source 169.254.x.x
+ neighbor 169.254.x.129 timers 10 30
+
+ neighbor 169.254.x.113 remote-as 64512
+ neighbor 169.254.x.113 description AWS-VPN-TUNNEL-2
+ neighbor 169.254.x.113 update-source 169.254.x.114
+ neighbor 169.254.x.113 timers 10 30
+
+ address-family ipv4 unicast
+
+  network 192.168.x.x/24
+
+  neighbor 169.254.x.x activate
+  neighbor 169.254.x.x route-map ONPREM-OUT out
+
+  neighbor 169.254.x.x activate
+  neighbor 169.254.x.x route-map ONPREM-OUT out
+
+ exit-address-family
+!
+line vty
+!
+
+```
+- Save and restart
+```
+sudo systemctl restart frr
+
+```
+- Check
+```
+ip route get 192.168.x.x
+```
+- Verify BGP
+```
+sudo vtysh -c "show ip bgp summary"
+```
+- Check advertised network
+```
+sudo vtysh -c "show ip bgp neighbors 169.254.x.x advertised-routes"
+
+```
+#### Configure the firewall
+```
+sudo ufw allow 500/udp
+sudo ufw allow 4500/udp
+```
+#### Test Everything
+| Test | Command |
+| --- | --- |
+| Check interfaces | ip -br addr |
+| Check IPsec | sudo swanctl --list-sas |
+| Check BGP |sudo vtysh -c "show ip bgp summary" |
+| Check BGP routes | sudo vtysh -c "show ip route bgp" |
+| Check routing table | ip route |
+| Check strongSwan logs | sudo journalctl -u strongswan -f |
+| Check FRR logs | sudo journalctl -u frr -f |
+
+![](./images/t1-IPSec%20tunnels.png)
+![](./images/t2-bgp.png)
+![](./images/t3-check-tunnel-connectivity.png)
+
+
