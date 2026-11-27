@@ -136,6 +136,62 @@ Follow the steps below to create AWS landing zone with multi AWS accounts and hy
 - Review your choices. Choose Enable AWS Control Tower.
 - AWS Control Tower takes about 30 minutes to set up all of the resources in your landing zone.
 
+### Step 2
+
+#### Terraform
+- Create the terraform state. The bootstrap stack must be deployed before the four environment stacks.
+I recommend using S3 native state locking instead of DynamoDB locking. This requires Terraform 1.10 or later.
+- Create the Organization. This OU implementation is intended for a new Infrastructure and Workloads hierarchy. If these OUs already exist, import them and remove the creation preconditions before planning. Do not run the creation configuration against existing OUs.
+![](./images/6-orgnization.png)
+- Create AWS account for the organizational units
+- Create governance. The governance module will manage organization-wide guardrails
+- Create the security. The Security account will be the delegated administrator for the security services wherever AWS supports organization-level administration. The Logging account will own the centralized CloudTrail destination.
+![](./images/security%20design%20-%20aws%20landing%20zone.jpeg)
+- Network phase 1
+  - Three Availability Zone support.
+  - Public, private application and isolated subnet tiers.
+  - NAT Gateway support.
+  - VPC
+  - Subnets
+  - VPC routing
+  - VPC Flow Logs.
+  - Transit Gateway.
+  - Transit Gateway route propagation and association
+  - Security Groups
+  - Separate Production and NonProduction routing domains.
+  - VPC endpoints for AWS services.
+  - Cross-account deployment support.
+For the first iteration, NAT gateways will be deployed per VPC. This avoids introducing a centralized egress routing dependency before the Transit Gateway routing is validated. We can subsequently migrate egress to the Infrastructure account's inspection VPC using AWS Network Firewall.
+
+- Network phase 2 - Centralized egress and network inspection
+  - Centralized outbound internet access.
+  - Stateful firewall inspection.
+  - Separate Production and NonProduction routing domains.
+  - Centralized firewall logging.
+  - Domain and IP-based traffic filtering.
+  - Multi-AZ resilience.
+  - A foundation for future hybrid connectivity.
+  - Egress VPC and subnets
+  - Inspection VPC routing
+
+- Network phase 3 - Route 53 Resolver and DNS Firewall
+  - Centralized DNS resolution.
+  - Cross-account DNS forwarding.
+  - DNS query logging.
+  - Domain-based DNS filtering.
+  - Protection against known malicious domains.
+  - Consistent DNS policies across Production and NonProduction.
+  - Route 53 Resolver inbound endpoints.
+  - Route 53 Resolver outbound endpoints.
+  - Cross-account DNS forwarding.
+  - Route 53 Resolver forwarding rules.
+  - Route 53 DNS Firewall domain lists.
+  - DNS Firewall rule groups and associations.
+  - Multi-AZ DNS infrastructure.
+  - Centralized DNS logging to the Logging account
+
+
+ 
 
 
 
