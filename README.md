@@ -16,6 +16,8 @@ Finally, I verified that both ends exchanged routes and that a device on-premise
 ## Aim
 The goal was to connect an on-premises Ubuntu network securely to multiple AWS environments, while keeping traffic routed and inspected rather than opening direct, uncontrolled paths.
 
+![Video](https://www.loom.com/share/6f62c836d62446518adc852e2595a6f1)
+
 ## Prerequsite
 
 Before starting this project, ensure you have the following:
