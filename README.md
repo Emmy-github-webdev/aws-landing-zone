@@ -52,8 +52,63 @@ _Hybrid Network design_
 
 ![](./images/Hybrid%20networking%20(centralized%20Transit%20Gateway%20with%20independent%20VPCs)%20-%20aws%20landing%20zone.jpeg)
 
+## GitHub Repository Structure
+```
+aws-landing-zone/
+│
+├── modules/
+│   ├── organizations/
+│   │   ├── main.tf
+│   │   ├── data.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   ├── governance/
+│   │   ├── main.tf
+│   │   ├── policies.tf
+│   │   ├── locals.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   ├── security/
+│   │   ├── main.tf
+│   │   ├── cloudtrail.tf
+│   │   ├── config.tf
+│   │   ├── guardduty.tf
+│   │   ├── securityhub.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   │
+│   └── networking/
+│       ├── main.tf
+│       ├── transit-gateway.tf
+│       ├── vpc.tf
+│       ├── subnets.tf
+│       ├── routing.tf
+│       ├── endpoints.tf
+│       ├── variables.tf
+│       └── outputs.tf
+│
+├── environments/
+│   ├── organizations/
+│   ├── governance/
+│   ├── security/
+│   └── networking/
+│
+├── bootstrap/
+│   └── terraform-state/
+│
+├── .github/
+│   └── workflows/
+│       ├── organizations.yml
+│       ├── governance.yml
+│       ├── security.yml
+│       └── networking.yml
+│
+├── .gitignore
+└── README.md
 
-
+```
 
 
 
