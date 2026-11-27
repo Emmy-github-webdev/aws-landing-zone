@@ -123,73 +123,65 @@ aws-landing-zone/
 ```
 ## Implementation Steps
 
-Follow the steps below to create AWS landing zone with multi AWS accounts and hybrid network connectivity to onpremise or corperate network.
+Follow these steps to build an AWS landing zone with multiple AWS accounts and hybrid connectivity to an on-premises or corporate network.
 
-### Step 1
+### Step 1: Set up the landing zone with AWS Control Tower
 
-#### Create the AWS Organization blueprints using AWS Control Tower
-- Sign in to the [AWS management console](https://us-west-2.signin.aws.amazon.com/signin?redirect_uri=https%3A%2F%2Fconsole.aws.amazon.com%2Fconsole%2Fhome%3Fca-oauth-flow-id%3D35a2%26hashArgs%3D%2523%26isauthcode%3Dtrue%26nc2%3Dh_si%26oauthStart%3D1795782732465%26src%3Dheader-signin%26state%3DhashArgsFromTB_eu-north-1_3dbeb442f0847b8e&client_id=arn%3Aaws%3Asignin%3A%3A%3Aconsole%2Fcanvas&forceMobileApp=0&oauth_region=eu-north-1&code_challenge=nZ5ZNz5slX03CF9ICF4SgWApWn_4A0gLt8VNLtTL_uo&code_challenge_method=SHA-256) with your administrator user credentials.
-- Navigate to the AWS Control Tower console at https://console.aws.amazon.com/controltower.
-- Verify that you are working in your desired home Region.
-- Choose Enable AWS Control Tower.
-- Follow the instructions in the console, accepting all the default values. Select existing accounts, or create new accounts, for your Aggregator account and CloudTrail administrator account.
-- Review your choices. Choose Enable AWS Control Tower.
-- AWS Control Tower takes about 30 minutes to set up all of the resources in your landing zone.
+1. Sign in to the [AWS Management Console](https://console.aws.amazon.com/) using an account with the permissions required to set up AWS Control Tower.
+2. Open the [AWS Control Tower console](https://console.aws.amazon.com/controltower).
+3. Confirm that you are using the intended home Region.
+4. Choose **Set up landing zone** and follow the setup wizard. Review the configuration, including the Audit and Log Archive accounts, before proceeding.
+5. Start the setup and wait for AWS Control Tower to finish provisioning the landing zone. Setup time varies.
 
-### Step 2
+### Step 2: Deploy the Terraform configuration
 
-#### Terraform
-- Create the terraform state. The bootstrap stack must be deployed before the four environment stacks.
-I recommend using S3 native state locking instead of DynamoDB locking. This requires Terraform 1.10 or later.
-- Create the Organization. This OU implementation is intended for a new Infrastructure and Workloads hierarchy. If these OUs already exist, import them and remove the creation preconditions before planning. Do not run the creation configuration against existing OUs.
+Deploy the Terraform stacks in this order: **bootstrap**, **organization**, **governance**, **security**, and **networking**. The bootstrap stack configures the Terraform state backend and must be deployed before the other stacks. S3-native state locking is recommended and requires Terraform 1.10 or later.
+
+#### Organization
+- Create the organization and its organizational units (OUs). This configuration is intended for a new Infrastructure and Workloads hierarchy.
+- If these OUs already exist, import them into Terraform and remove the creation preconditions before planning. Do not apply the creation configuration to existing OUs without importing them first.
+
 ![](./images/6-orgnization.png)
-- Create AWS account for the organizational units
-- Create governance. The governance module will manage organization-wide guardrails
-- Create the security. The Security account will be the delegated administrator for the security services wherever AWS supports organization-level administration. The Logging account will own the centralized CloudTrail destination.
+
+#### Accounts
+- Create the AWS accounts for the organizational units.
+
+#### Governance
+- Deploy organization-wide guardrails.
+
+#### Security
+- Configure the Security account as the delegated administrator for supported security services.
+- Configure the Logging account to own the centralized CloudTrail destination.
+
 ![](./images/security%20design%20-%20aws%20landing%20zone.jpeg)
-- Network phase 1
-  - Three Availability Zone support.
-  - Public, private application and isolated subnet tiers.
-  - NAT Gateway support.
-  - VPC
-  - Subnets
-  - VPC routing
-  - VPC Flow Logs.
-  - Transit Gateway.
-  - Transit Gateway route propagation and association
-  - Security Groups
-  - Separate Production and NonProduction routing domains.
-  - VPC endpoints for AWS services.
-  - Cross-account deployment support.
-For the first iteration, NAT gateways will be deployed per VPC. This avoids introducing a centralized egress routing dependency before the Transit Gateway routing is validated. We can subsequently migrate egress to the Infrastructure account's inspection VPC using AWS Network Firewall.
 
-- Network phase 2 - Centralized egress and network inspection
-  - Centralized outbound internet access.
-  - Stateful firewall inspection.
-  - Separate Production and NonProduction routing domains.
-  - Centralized firewall logging.
-  - Domain and IP-based traffic filtering.
-  - Multi-AZ resilience.
-  - A foundation for future hybrid connectivity.
-  - Egress VPC and subnets
-  - Inspection VPC routing
+#### Networking phase 1: Foundational network
+- Support three Availability Zones.
+- Create public, private application, and isolated subnet tiers.
+- Deploy VPCs, subnets, routing, security groups, and VPC Flow Logs.
+- Deploy NAT Gateways and VPC endpoints for AWS services.
+- Deploy a Transit Gateway with route propagation and associations.
+- Maintain separate Production and NonProduction routing domains.
+- Support cross-account deployment.
 
-- Network phase 3 - Route 53 Resolver and DNS Firewall
-  - Centralized DNS resolution.
-  - Cross-account DNS forwarding.
-  - DNS query logging.
-  - Domain-based DNS filtering.
-  - Protection against known malicious domains.
-  - Consistent DNS policies across Production and NonProduction.
-  - Route 53 Resolver inbound endpoints.
-  - Route 53 Resolver outbound endpoints.
-  - Cross-account DNS forwarding.
-  - Route 53 Resolver forwarding rules.
-  - Route 53 DNS Firewall domain lists.
-  - DNS Firewall rule groups and associations.
-  - Multi-AZ DNS infrastructure.
-  - Centralized DNS logging to the Logging account
+For the first iteration, deploy NAT Gateways per VPC. This avoids adding a centralized egress dependency before Transit Gateway routing is validated. Egress can later be migrated to the Infrastructure account's inspection VPC using AWS Network Firewall.
 
+#### Networking phase 2: Centralized egress and inspection
+- Provide centralized outbound internet access through an egress VPC.
+- Inspect traffic with a stateful firewall and filter by domain and IP address.
+- Configure inspection VPC routing and separate Production and NonProduction routing domains.
+- Centralize firewall logging and design for Multi-AZ resilience.
+
+#### Networking phase 3: Centralized DNS
+- Configure Route 53 Resolver inbound and outbound endpoints and forwarding rules.
+- Enable cross-account DNS forwarding and centralized DNS query logging.
+- Configure Route 53 DNS Firewall domain lists, rule groups, and associations.
+- Apply consistent DNS policies across Production and NonProduction and design for Multi-AZ resilience.
+- Send centralized DNS logs to the Logging account.
+
+#### Networking phase 4: Hybrid connectivity
+
+Hybrid connectivity is a planned phase; the phases above establish its network and DNS foundations. Before treating hybrid connectivity as implemented, document and configure the selected connection (such as Site-to-Site VPN or Direct Connect), Transit Gateway attachment and routing, on-premises routes, and DNS forwarding requirements.
 
  
 
